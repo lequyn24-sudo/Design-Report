@@ -427,7 +427,16 @@ export default function Home() {
                         <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-1 ${STATUS_COLORS[task.status]}`} />
                         <div className="flex-1 min-w-0">
                           <div className="text-sm text-gray-800">{task.name}</div>
-                          {task.note && <div className="text-xs text-gray-400 mt-0.5 truncate">{task.note}</div>}
+                          {task.note && (
+                            (task.note ?? "").startsWith("http") ? (
+                              <a href={task.note} target="_blank" rel="noreferrer"
+                                className="text-xs text-purple-500 hover:underline mt-0.5 truncate block">
+                                {task.note}
+                              </a>
+                            ) : (
+                              <div className="text-xs text-gray-400 mt-0.5 truncate">{task.note}</div>
+                            )
+                          )}
                         </div>
                         <span className={`text-xs px-2 py-0.5 rounded font-medium flex-shrink-0 ${TAG_COLORS[task.tag]}`}>{task.tag}</span>
                         <span className="text-xs text-gray-400 flex-shrink-0">{task.hours}</span>
