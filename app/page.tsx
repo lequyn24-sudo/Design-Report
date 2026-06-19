@@ -19,6 +19,13 @@ interface Project {
   color: string;
 }
 
+interface Channel {
+  id: number;
+  name: string;
+  done: number;
+  total: number;
+}
+
 const TAG_COLORS: Record<Tag, string> = {
   UI: "bg-purple-100 text-purple-800",
   UX: "bg-amber-100 text-amber-800",
@@ -82,6 +89,12 @@ const DEFAULT_TASKS: Task[] = [
   { id: 5, name: "Handoff file cho dev – sprint 12", tag: "UI", status: "todo", hours: "—" },
 ];
 
+const DEFAULT_CHANNELS: Channel[] = [
+  { id: 1, name: "Coincu Insight", done: 0, total: 5 },
+  { id: 2, name: "Aptops Verse", done: 0, total: 5 },
+  { id: 3, name: "Memeverse", done: 0, total: 5 },
+];
+
 const DEFAULT_PROJECTS: Project[] = [
   { name: "App redesign – Checkout", pct: 85, color: "#1D9E75" },
   { name: "Design system v2", pct: 60, color: "#534AB7" },
@@ -96,13 +109,14 @@ export default function Home() {
   const [dateTo, setDateTo] = useState(() => loadSaved()?.dateTo ?? defaultDates.to);
   const [tasks, setTasks] = useState<Task[]>(() => loadSaved()?.tasks ?? DEFAULT_TASKS);
   const [projects, setProjects] = useState<Project[]>(() => loadSaved()?.projects ?? DEFAULT_PROJECTS);
+  const [channels, setChannels] = useState<Channel[]>(() => loadSaved()?.channels ?? DEFAULT_CHANNELS);
   const [nextWeek, setNextWeek] = useState(() => loadSaved()?.nextWeek ?? "• Hoàn thiện prototype checkout\n• Họp review với stakeholder\n• Bắt đầu visual design landing page");
   const [blockers, setBlockers] = useState(() => loadSaved()?.blockers ?? "• Chờ copy từ team content cho landing page\n• Cần xác nhận brand color mới từ marketing");
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      name, role, dateFrom, dateTo, tasks, projects, nextWeek, blockers,
+      name, role, dateFrom, dateTo, tasks, projects, channels, nextWeek, blockers,
     }));
-  }, [name, role, dateFrom, dateTo, tasks, projects, nextWeek, blockers]);
+  }, [name, role, dateFrom, dateTo, tasks, projects, channels, nextWeek, blockers]);
 
   const tasksDone = tasks.filter(t => t.status === "done").length;
 
@@ -126,6 +140,15 @@ export default function Home() {
   const removeProject = (i: number) =>
     setProjects(prev => prev.filter((_, idx) => idx !== i));
 
+  const addChannel = () =>
+    setChannels(prev => [...prev, { id: Date.now(), name: "Kênh mới", done: 0, total: 5 }]);
+
+  const updateChannel = (id: number, field: keyof Channel, value: string | number) =>
+    setChannels(prev => prev.map(c => c.id === id ? { ...c, [field]: value } : c));
+
+  const removeChannel = (id: number) =>
+    setChannels(prev => prev.filter(c => c.id !== id));
+
   return (
     <main className="min-h-screen bg-[#f8f7f5] py-10 px-4 print:bg-white print:py-0 print:px-0">
 
@@ -138,6 +161,7 @@ export default function Home() {
               const d = getDefaultDates(); setDateFrom(d.from); setDateTo(d.to);
               setTasks(DEFAULT_TASKS);
               setProjects(DEFAULT_PROJECTS);
+              setChannels(DEFAULT_CHANNELS);
               setNextWeek("• Hoàn thiện prototype checkout\n• Họp review với stakeholder\n• Bắt đầu visual design landing page");
               setBlockers("• Chờ copy từ team content cho landing page\n• Cần xác nhận brand color mới từ marketing");
             }
@@ -251,6 +275,42 @@ export default function Home() {
                   className="text-gray-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs ml-1 print:hidden">✕</button>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Daily output */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-3">
+            <div className="text-xs font-medium text-gray-400 uppercase tracking-wider">Daily output – Banner</div>
+            <button onClick={addChannel} className="text-xs text-purple-600 hover:text-purple-800 font-medium print:hidden">+ Thêm kênh</button>
+          </div>
+          <div className="space-y-2.5">
+            {channels.map(c => {
+              const pct = c.total > 0 ? Math.min(100, (c.done / c.total) * 100) : 0;
+              const allDone = c.done >= c.total && c.total > 0;
+              return (
+                <div key={c.id} className="flex items-center gap-3 group">
+                  <input value={c.name} onChange={e => updateChannel(c.id, "name", e.target.value)}
+                    className="text-sm text-gray-700 bg-transparent focus:outline-none w-40 border-b border-dashed border-gray-200 focus:border-purple-400 print:border-none flex-shrink-0" />
+                  <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all"
+                      style={{ width: `${pct}%`, background: allDone ? "#1D9E75" : "#a78bfa" }} />
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <input type="number" min={0} max={c.total} value={c.done}
+                      onChange={e => updateChannel(c.id, "done", Math.min(c.total, Number(e.target.value)))}
+                      className="text-xs text-gray-700 font-medium w-6 text-right bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+                    <span className="text-xs text-gray-400">/</span>
+                    <input type="number" min={1} value={c.total}
+                      onChange={e => updateChannel(c.id, "total", Math.max(1, Number(e.target.value)))}
+                      className="text-xs text-gray-400 w-6 bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+                    <span className="text-xs text-gray-300 ml-0.5">posts</span>
+                  </div>
+                  <button onClick={() => removeChannel(c.id)}
+                    className="text-gray-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs print:hidden">✕</button>
+                </div>
+              );
+            })}
           </div>
         </div>
 
