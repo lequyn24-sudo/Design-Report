@@ -284,7 +284,9 @@ export default function Home() {
                       {weeks.map(w => {
                         const done = w.tasks.filter(t => t.status === "done").length;
                         return (
-                          <div key={w.id} className="flex items-center gap-4 py-2.5 border-b border-gray-50 last:border-0 group/week">
+                          <div key={w.id}
+                            onClick={() => loadWeekForEdit(w)}
+                            className="flex items-center gap-4 py-2.5 px-3 -mx-3 rounded-lg border-b border-gray-50 last:border-0 hover:bg-purple-50 cursor-pointer transition-colors group/week print:hover:bg-transparent print:cursor-default">
                             <span className="text-xs text-gray-400 w-36 flex-shrink-0">{formatWeekLabel(w.dateFrom, w.dateTo)}</span>
                             <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${done === w.tasks.length && w.tasks.length > 0 ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-600"}`}>
                               {done}/{w.tasks.length} tasks
@@ -296,18 +298,12 @@ export default function Home() {
                                 </span>
                               ))}
                             </div>
-                            <div className="flex items-center gap-2 opacity-0 group-hover/week:opacity-100 transition-opacity print:hidden flex-shrink-0">
-                              <button
-                                onClick={() => loadWeekForEdit(w)}
-                                className="text-xs text-purple-400 hover:text-purple-600"
-                                title="Chỉnh sửa tuần này"
-                              >Sửa</button>
-                              <button
-                                onClick={() => setSavedWeeks(prev => prev.filter(sw => sw.id !== w.id))}
-                                className="text-xs text-gray-300 hover:text-red-400"
-                                title="Xóa tuần này"
-                              >✕</button>
-                            </div>
+                            <span className="text-xs text-purple-400 opacity-0 group-hover/week:opacity-100 transition-opacity print:hidden flex-shrink-0">Chỉnh sửa →</span>
+                            <button
+                              onClick={e => { e.stopPropagation(); setSavedWeeks(prev => prev.filter(sw => sw.id !== w.id)); }}
+                              className="text-xs text-gray-300 hover:text-red-400 print:hidden flex-shrink-0 ml-1"
+                              title="Xóa tuần này"
+                            >✕</button>
                           </div>
                         );
                       })}
@@ -344,10 +340,8 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                  <div className="pt-4 border-t border-gray-100 flex justify-between">
+                  <div className="pt-4 border-t border-gray-100">
                     <div className="text-xs text-gray-300">Monthly Report · Design Team</div>
-                    <button onClick={() => { if (confirm("Xóa tháng này?")) setSavedWeeks(prev => prev.filter(w => !weeks.some(sw => sw.id === w.id))); }}
-                      className="text-xs text-gray-300 hover:text-red-400 print:hidden">Xóa tháng này</button>
                   </div>
                 </div>
               );
