@@ -18,6 +18,7 @@ interface Project {
   name: string;
   pct: number;
   color: string;
+  link: string;
 }
 
 interface Channel {
@@ -97,9 +98,9 @@ const DEFAULT_CHANNELS: Channel[] = [
 ];
 
 const DEFAULT_PROJECTS: Project[] = [
-  { name: "App redesign – Checkout", pct: 85, color: "#1D9E75" },
-  { name: "Design system v2", pct: 60, color: "#534AB7" },
-  { name: "Landing page – Q3", pct: 30, color: "#BA7517" },
+  { name: "App redesign – Checkout", pct: 85, color: "#1D9E75", link: "" },
+  { name: "Design system v2", pct: 60, color: "#534AB7", link: "" },
+  { name: "Landing page – Q3", pct: 30, color: "#BA7517", link: "" },
 ];
 
 export default function Home() {
@@ -132,7 +133,7 @@ export default function Home() {
 
   const addProject = () => {
     const color = PROJECT_COLORS[projects.length % PROJECT_COLORS.length];
-    setProjects(prev => [...prev, { name: "Dự án mới", pct: 0, color }]);
+    setProjects(prev => [...prev, { name: "Dự án mới", pct: 0, color, link: "" }]);
   };
 
   const updateProject = (i: number, field: keyof Project, value: string | number) =>
@@ -231,18 +232,41 @@ export default function Home() {
           </div>
           <div className="space-y-3">
             {projects.map((p, i) => (
-              <div key={i} className="flex items-center gap-3 group">
-                <input value={p.name} onChange={e => updateProject(i, "name", e.target.value)}
-                  className="text-sm text-gray-700 bg-transparent focus:outline-none w-44 border-b border-dashed border-gray-200 focus:border-purple-400 print:border-none" />
-                <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${p.pct}%`, background: p.color }} />
+              <div key={i} className="group">
+                <div className="flex items-center gap-3">
+                  <input value={p.name} onChange={e => updateProject(i, "name", e.target.value)}
+                    className="text-sm text-gray-700 bg-transparent focus:outline-none w-44 border-b border-dashed border-gray-200 focus:border-purple-400 print:border-none flex-shrink-0" />
+                  <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all" style={{ width: `${p.pct}%`, background: p.color }} />
+                  </div>
+                  <input type="number" min={0} max={100} value={p.pct}
+                    onChange={e => updateProject(i, "pct", Math.min(100, Number(e.target.value)))}
+                    className="text-xs text-gray-500 w-10 text-right bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+                  <span className="text-xs text-gray-400">%</span>
+                  <button onClick={() => removeProject(i)}
+                    className="text-gray-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs print:hidden">✕</button>
                 </div>
-                <input type="number" min={0} max={100} value={p.pct}
-                  onChange={e => updateProject(i, "pct", Math.min(100, Number(e.target.value)))}
-                  className="text-xs text-gray-500 w-10 text-right bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
-                <span className="text-xs text-gray-400">%</span>
-                <button onClick={() => removeProject(i)}
-                  className="text-gray-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs print:hidden">✕</button>
+                <div className="flex items-center gap-1.5 mt-1 ml-0">
+                  {p.link ? (
+                    <>
+                      <a href={p.link} target="_blank" rel="noreferrer"
+                        className="text-xs text-purple-500 hover:text-purple-700 truncate max-w-xs print:text-gray-500">
+                        {p.link}
+                      </a>
+                      <input value={p.link} onChange={e => updateProject(i, "link", e.target.value)}
+                        className="sr-only" />
+                      <button onClick={() => updateProject(i, "link", "")}
+                        className="text-gray-300 hover:text-red-400 text-xs flex-shrink-0 print:hidden">✕</button>
+                    </>
+                  ) : (
+                    <input
+                      value={p.link}
+                      onChange={e => updateProject(i, "link", e.target.value)}
+                      placeholder="Dán link Figma / Drive..."
+                      className="text-xs text-gray-400 bg-transparent focus:outline-none placeholder-gray-200 w-full print:hidden"
+                    />
+                  )}
+                </div>
               </div>
             ))}
           </div>
