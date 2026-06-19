@@ -41,7 +41,7 @@ const STATUS_LABELS: Record<Status, string> = {
 
 const PROJECT_COLORS = ["#1D9E75", "#534AB7", "#BA7517", "#E05C5C", "#2D7DD2"];
 
-function getWeekLabel() {
+function getDefaultDates() {
   const today = new Date();
   const day = today.getDay();
   const daysToLastFriday = (day + 2) % 7;
@@ -49,9 +49,17 @@ function getWeekLabel() {
   fri.setDate(today.getDate() - daysToLastFriday);
   const thu = new Date(fri);
   thu.setDate(fri.getDate() + 6);
+  const toISO = (d: Date) => d.toISOString().slice(0, 10);
+  return { from: toISO(fri), to: toISO(thu) };
+}
+
+function formatWeekLabel(from: string, to: string) {
+  if (!from || !to) return "";
+  const f = new Date(from + "T00:00:00");
+  const t = new Date(to + "T00:00:00");
   const dd = (d: Date) => String(d.getDate()).padStart(2, "0");
   const mm = (d: Date) => String(d.getMonth() + 1).padStart(2, "0");
-  return `${dd(fri)}/${mm(fri)} – ${dd(thu)}/${mm(thu)}/${thu.getFullYear()}`;
+  return `${dd(f)}/${mm(f)} – ${dd(t)}/${mm(t)}/${t.getFullYear()}`;
 }
 
 const STORAGE_KEY = "weekly-design-report";
@@ -83,7 +91,9 @@ const DEFAULT_PROJECTS: Project[] = [
 export default function Home() {
   const [name, setName] = useState(() => loadSaved()?.name ?? "Nguyễn Minh Anh");
   const [role, setRole] = useState(() => loadSaved()?.role ?? "UI/UX Designer");
-  const [weekLabel, setWeekLabel] = useState(() => loadSaved()?.weekLabel ?? getWeekLabel());
+  const defaultDates = getDefaultDates();
+  const [dateFrom, setDateFrom] = useState(() => loadSaved()?.dateFrom ?? defaultDates.from);
+  const [dateTo, setDateTo] = useState(() => loadSaved()?.dateTo ?? defaultDates.to);
   const [tasks, setTasks] = useState<Task[]>(() => loadSaved()?.tasks ?? DEFAULT_TASKS);
   const [projects, setProjects] = useState<Project[]>(() => loadSaved()?.projects ?? DEFAULT_PROJECTS);
   const [nextWeek, setNextWeek] = useState(() => loadSaved()?.nextWeek ?? "• Hoàn thiện prototype checkout\n• Họp review với stakeholder\n• Bắt đầu visual design landing page");
@@ -94,9 +104,9 @@ export default function Home() {
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      name, role, weekLabel, tasks, projects, nextWeek, blockers, hours, screens, reviews,
+      name, role, dateFrom, dateTo, tasks, projects, nextWeek, blockers, hours, screens, reviews,
     }));
-  }, [name, role, weekLabel, tasks, projects, nextWeek, blockers, hours, screens, reviews]);
+  }, [name, role, dateFrom, dateTo, tasks, projects, nextWeek, blockers, hours, screens, reviews]);
 
   const tasksDone = tasks.filter(t => t.status === "done").length;
 
@@ -129,7 +139,8 @@ export default function Home() {
           onClick={() => {
             if (confirm("Reset về dữ liệu mẫu?")) {
               setName("Nguyễn Minh Anh"); setRole("UI/UX Designer");
-              setWeekLabel(getWeekLabel()); setTasks(DEFAULT_TASKS);
+              const d = getDefaultDates(); setDateFrom(d.from); setDateTo(d.to);
+              setTasks(DEFAULT_TASKS);
               setProjects(DEFAULT_PROJECTS);
               setNextWeek("• Hoàn thiện prototype checkout\n• Họp review với stakeholder\n• Bắt đầu visual design landing page");
               setBlockers("• Chờ copy từ team content cho landing page\n• Cần xác nhận brand color mới từ marketing");
@@ -162,8 +173,18 @@ export default function Home() {
                 className="text-sm text-gray-500 bg-transparent border-b border-dashed border-gray-300 focus:outline-none focus:border-purple-400 w-36 print:border-none" />
             </div>
           </div>
-          <input value={weekLabel} onChange={e => setWeekLabel(e.target.value)}
-            className="text-xs font-medium bg-purple-50 text-purple-800 px-3 py-1.5 rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-purple-200 text-center w-40" />
+          <div className="flex flex-col items-end gap-1">
+            <div className="text-xs font-medium bg-purple-50 text-purple-800 px-3 py-1.5 rounded-lg print:block hidden">
+              {formatWeekLabel(dateFrom, dateTo)}
+            </div>
+            <div className="flex items-center gap-1.5 print:hidden">
+              <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+                className="text-xs text-purple-800 bg-purple-50 border-none rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-purple-200 cursor-pointer" />
+              <span className="text-xs text-purple-400">–</span>
+              <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
+                className="text-xs text-purple-800 bg-purple-50 border-none rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-purple-200 cursor-pointer" />
+            </div>
+          </div>
         </div>
 
         {/* Metrics */}
