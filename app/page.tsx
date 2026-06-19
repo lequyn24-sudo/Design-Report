@@ -98,15 +98,11 @@ export default function Home() {
   const [projects, setProjects] = useState<Project[]>(() => loadSaved()?.projects ?? DEFAULT_PROJECTS);
   const [nextWeek, setNextWeek] = useState(() => loadSaved()?.nextWeek ?? "• Hoàn thiện prototype checkout\n• Họp review với stakeholder\n• Bắt đầu visual design landing page");
   const [blockers, setBlockers] = useState(() => loadSaved()?.blockers ?? "• Chờ copy từ team content cho landing page\n• Cần xác nhận brand color mới từ marketing");
-  const [hours, setHours] = useState<number>(() => loadSaved()?.hours ?? 32);
-  const [screens, setScreens] = useState<number>(() => loadSaved()?.screens ?? 24);
-  const [reviews, setReviews] = useState<number>(() => loadSaved()?.reviews ?? 3);
-
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      name, role, dateFrom, dateTo, tasks, projects, nextWeek, blockers, hours, screens, reviews,
+      name, role, dateFrom, dateTo, tasks, projects, nextWeek, blockers,
     }));
-  }, [name, role, dateFrom, dateTo, tasks, projects, nextWeek, blockers, hours, screens, reviews]);
+  }, [name, role, dateFrom, dateTo, tasks, projects, nextWeek, blockers]);
 
   const tasksDone = tasks.filter(t => t.status === "done").length;
 
@@ -144,7 +140,6 @@ export default function Home() {
               setProjects(DEFAULT_PROJECTS);
               setNextWeek("• Hoàn thiện prototype checkout\n• Họp review với stakeholder\n• Bắt đầu visual design landing page");
               setBlockers("• Chờ copy từ team content cho landing page\n• Cần xác nhận brand color mới từ marketing");
-              setHours(32); setScreens(24); setReviews(3);
             }
           }}
           className="text-xs text-gray-400 hover:text-gray-600"
@@ -188,30 +183,19 @@ export default function Home() {
         </div>
 
         {/* Metrics */}
-        <div className="grid grid-cols-4 gap-3 mb-8">
-          {/* Auto-calculated */}
+        <div className="grid grid-cols-3 gap-3 mb-8">
           <div className="bg-gray-50 rounded-xl p-3">
             <div className="text-xs text-gray-500 mb-1">Tasks hoàn thành</div>
             <div className="text-2xl font-medium text-gray-900">{tasksDone}/{tasks.length}</div>
           </div>
-          {/* Manual inputs */}
-          {([
-            { label: "Giờ thiết kế", value: hours, set: setHours, suffix: "h" },
-            { label: "Screens / frames", value: screens, set: setScreens, suffix: "" },
-            { label: "Feedback rounds", value: reviews, set: setReviews, suffix: "" },
-          ] as const).map(m => (
-            <div key={m.label} className="bg-gray-50 rounded-xl p-3">
-              <div className="text-xs text-gray-500 mb-1">{m.label}</div>
-              <div className="flex items-baseline gap-0.5">
-                <input
-                  type="number" min={0} value={m.value}
-                  onChange={e => m.set(Number(e.target.value))}
-                  className="text-2xl font-medium text-gray-900 bg-transparent w-14 focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                />
-                {m.suffix && <span className="text-lg text-gray-500">{m.suffix}</span>}
-              </div>
-            </div>
-          ))}
+          <div className="bg-gray-50 rounded-xl p-3">
+            <div className="text-xs text-gray-500 mb-1">Đang thực hiện</div>
+            <div className="text-2xl font-medium text-amber-500">{tasks.filter(t => t.status === "inprogress").length}</div>
+          </div>
+          <div className="bg-gray-50 rounded-xl p-3">
+            <div className="text-xs text-gray-500 mb-1">Chưa bắt đầu</div>
+            <div className="text-2xl font-medium text-gray-400">{tasks.filter(t => t.status === "todo").length}</div>
+          </div>
         </div>
 
         {/* Projects */}
