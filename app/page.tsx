@@ -4,6 +4,18 @@ import { useState, useEffect } from "react";
 const TAGS = ["UI", "UX", "Branding", "Research", "Motion"] as const;
 type Tag = typeof TAGS[number];
 type Status = "done" | "inprogress" | "todo";
+type View = "weekly" | "monthly";
+
+interface WeekSnapshot {
+  id: string;
+  dateFrom: string;
+  dateTo: string;
+  tasks: Task[];
+  channels: Channel[];
+  projects: Project[];
+  nextWeek: string;
+  blockers: string;
+}
 
 interface Task {
   id: number;
@@ -62,6 +74,11 @@ function getDefaultDates() {
   return { from: toISO(fri), to: toISO(thu) };
 }
 
+function getMonthLabel(dateStr: string) {
+  const d = new Date(dateStr + "T00:00:00");
+  return `Tháng ${d.getMonth() + 1} · ${d.getFullYear()}`;
+}
+
 function formatWeekLabel(from: string, to: string) {
   if (!from || !to) return "";
   const f = new Date(from + "T00:00:00");
@@ -104,6 +121,8 @@ const DEFAULT_PROJECTS: Project[] = [
 ];
 
 export default function Home() {
+  const [view, setView] = useState<View>("weekly");
+  const [savedWeeks, setSavedWeeks] = useState<WeekSnapshot[]>(() => loadSaved()?.savedWeeks ?? []);
   const [name, setName] = useState(() => loadSaved()?.name ?? "Nguyễn Minh Anh");
   const [role, setRole] = useState(() => loadSaved()?.role ?? "UI/UX Designer");
   const defaultDates = getDefaultDates();
@@ -116,9 +135,9 @@ export default function Home() {
   const [blockers, setBlockers] = useState(() => loadSaved()?.blockers ?? "• Chờ copy từ team content cho landing page\n• Cần xác nhận brand color mới từ marketing");
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      name, role, dateFrom, dateTo, tasks, projects, channels, nextWeek, blockers,
+      name, role, dateFrom, dateTo, tasks, projects, channels, nextWeek, blockers, savedWeeks,
     }));
-  }, [name, role, dateFrom, dateTo, tasks, projects, channels, nextWeek, blockers]);
+  }, [name, role, dateFrom, dateTo, tasks, projects, channels, nextWeek, blockers, savedWeeks]);
 
   const tasksDone = tasks.filter(t => t.status === "done").length;
 
@@ -151,36 +170,170 @@ export default function Home() {
   const removeChannel = (id: number) =>
     setChannels(prev => prev.filter(c => c.id !== id));
 
+  const saveWeek = () => {
+    const snapshot: WeekSnapshot = {
+      id: dateFrom, dateFrom, dateTo,
+      tasks: [...tasks], channels: [...channels], projects: [...projects],
+      nextWeek, blockers,
+    };
+    setSavedWeeks(prev => {
+      const idx = prev.findIndex(w => w.id === snapshot.id);
+      const updated = idx >= 0 ? prev.map((w, i) => i === idx ? snapshot : w) : [...prev, snapshot];
+      return updated.sort((a, b) => a.dateFrom.localeCompare(b.dateFrom));
+    });
+    const nextFri = new Date(dateTo + "T00:00:00");
+    nextFri.setDate(nextFri.getDate() + 1);
+    const nextThu = new Date(nextFri);
+    nextThu.setDate(nextFri.getDate() + 6);
+    const toISO = (d: Date) => d.toISOString().slice(0, 10);
+    setDateFrom(toISO(nextFri));
+    setDateTo(toISO(nextThu));
+    setTasks([]);
+    setChannels(prev => prev.map(c => ({ ...c, done: 0 })));
+    setNextWeek("");
+    setBlockers("");
+    setView("weekly");
+  };
+
+  const weeksByMonth = savedWeeks.reduce((acc, week) => {
+    const d = new Date(week.dateTo + "T00:00:00");
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(week);
+    return acc;
+  }, {} as Record<string, WeekSnapshot[]>);
+
   return (
     <main className="min-h-screen bg-[#f8f7f5] py-10 px-4 print:bg-white print:py-0 print:px-0">
 
       {/* Toolbar */}
       <div className="max-w-2xl mx-auto mb-4 flex justify-between items-center print:hidden">
-        <button
-          onClick={() => {
-            if (confirm("Reset về dữ liệu mẫu?")) {
-              setName("Nguyễn Minh Anh"); setRole("UI/UX Designer");
-              const d = getDefaultDates(); setDateFrom(d.from); setDateTo(d.to);
-              setTasks(DEFAULT_TASKS);
-              setProjects(DEFAULT_PROJECTS);
-              setChannels(DEFAULT_CHANNELS);
-              setNextWeek("• Hoàn thiện prototype checkout\n• Họp review với stakeholder\n• Bắt đầu visual design landing page");
-              setBlockers("• Chờ copy từ team content cho landing page\n• Cần xác nhận brand color mới từ marketing");
-            }
-          }}
-          className="text-xs text-gray-400 hover:text-gray-600"
-        >
-          Reset
-        </button>
-        <button
-          onClick={() => window.print()}
-          className="text-sm bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-        >
-          Export PDF
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="flex bg-gray-100 rounded-lg p-0.5 text-sm">
+            <button onClick={() => setView("weekly")}
+              className={`px-3 py-1.5 rounded-md font-medium transition-colors ${view === "weekly" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
+              Tuần này
+            </button>
+            <button onClick={() => setView("monthly")}
+              className={`px-3 py-1.5 rounded-md font-medium transition-colors ${view === "monthly" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
+              Tháng này
+              {savedWeeks.length > 0 && <span className="ml-1 text-xs bg-purple-100 text-purple-700 px-1.5 rounded-full">{savedWeeks.length}</span>}
+            </button>
+          </div>
+          <button onClick={() => { if (confirm("Reset về dữ liệu mẫu?")) { setName("Nguyễn Minh Anh"); setRole("UI/UX Designer"); const d = getDefaultDates(); setDateFrom(d.from); setDateTo(d.to); setTasks(DEFAULT_TASKS); setProjects(DEFAULT_PROJECTS); setChannels(DEFAULT_CHANNELS); setNextWeek("• Hoàn thiện prototype checkout\n• Họp review với stakeholder\n• Bắt đầu visual design landing page"); setBlockers("• Chờ copy từ team content cho landing page\n• Cần xác nhận brand color mới từ marketing"); } }}
+            className="text-xs text-gray-400 hover:text-gray-600">Reset</button>
+        </div>
+        <div className="flex items-center gap-2">
+          {view === "weekly" && (
+            <button onClick={() => { if (confirm(`Lưu tuần ${formatWeekLabel(dateFrom, dateTo)} vào báo cáo tháng?`)) saveWeek(); }}
+              className="text-sm border border-purple-300 text-purple-600 hover:bg-purple-50 px-3 py-2 rounded-lg font-medium transition-colors">
+              Lưu tuần →
+            </button>
+          )}
+          <button onClick={() => window.print()}
+            className="text-sm bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+            Export PDF
+          </button>
+        </div>
       </div>
 
-      <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8 print:shadow-none print:border-none print:rounded-none print:p-6">
+      {view === "monthly" && (
+        <div className="max-w-2xl mx-auto space-y-4">
+          {savedWeeks.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
+              <div className="text-gray-400 text-sm mb-1">Chưa có tuần nào được lưu</div>
+              <div className="text-gray-300 text-xs">Bấm &quot;Lưu tuần →&quot; sau khi điền xong báo cáo tuần.</div>
+            </div>
+          ) : (
+            Object.entries(weeksByMonth).sort((a, b) => b[0].localeCompare(a[0])).map(([, weeks]) => {
+              const totalDone = weeks.reduce((s, w) => s + w.tasks.filter(t => t.status === "done").length, 0);
+              const totalAll = weeks.reduce((s, w) => s + w.tasks.length, 0);
+              const channelTotals: Record<string, { done: number; total: number }> = {};
+              weeks.forEach(w => w.channels.forEach(c => {
+                if (!channelTotals[c.name]) channelTotals[c.name] = { done: 0, total: 0 };
+                channelTotals[c.name].done += c.done;
+                channelTotals[c.name].total += c.total;
+              }));
+              const latestProjects = weeks[weeks.length - 1].projects;
+              return (
+                <div key={weeks[0].id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 print:shadow-none print:border-none">
+                  <div className="flex justify-between items-center mb-6 pb-5 border-b border-gray-100">
+                    <div>
+                      <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Báo cáo tháng</div>
+                      <h2 className="text-xl font-medium text-gray-900">{getMonthLabel(weeks[0].dateTo)}</h2>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-medium text-gray-900">{totalDone}<span className="text-base text-gray-400">/{totalAll}</span></div>
+                      <div className="text-xs text-gray-400">tasks hoàn thành</div>
+                    </div>
+                  </div>
+                  <div className="mb-6">
+                    <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Theo tuần</div>
+                    <div className="space-y-1">
+                      {weeks.map(w => {
+                        const done = w.tasks.filter(t => t.status === "done").length;
+                        return (
+                          <div key={w.id} className="flex items-center gap-4 py-2.5 border-b border-gray-50 last:border-0">
+                            <span className="text-xs text-gray-400 w-36 flex-shrink-0">{formatWeekLabel(w.dateFrom, w.dateTo)}</span>
+                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${done === w.tasks.length && w.tasks.length > 0 ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-600"}`}>
+                              {done}/{w.tasks.length} tasks
+                            </span>
+                            <div className="flex gap-1.5 flex-wrap">
+                              {w.channels.map(c => (
+                                <span key={c.id} className={`text-xs px-2 py-0.5 rounded-full ${c.done >= c.total ? "bg-emerald-100 text-emerald-700" : "bg-purple-50 text-purple-600"}`}>
+                                  {c.name.split(" ")[0]}: {c.done}/{c.total}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-6 mb-6">
+                    <div>
+                      <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Daily output tổng</div>
+                      <div className="space-y-2">
+                        {Object.entries(channelTotals).map(([cname, stat]) => (
+                          <div key={cname} className="flex items-center gap-2">
+                            <span className="text-sm text-gray-700 w-28 truncate">{cname}</span>
+                            <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                              <div className="h-full rounded-full" style={{ width: `${Math.min(100, (stat.done / stat.total) * 100)}%`, background: stat.done >= stat.total ? "#1D9E75" : "#a78bfa" }} />
+                            </div>
+                            <span className="text-xs text-gray-500">{stat.done}/{stat.total}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Tiến độ dự án</div>
+                      <div className="space-y-2">
+                        {latestProjects.map((p, i) => (
+                          <div key={i} className="flex items-center gap-2">
+                            <span className="text-sm text-gray-700 truncate w-28">{p.name}</span>
+                            <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                              <div className="h-full rounded-full" style={{ width: `${p.pct}%`, background: p.color }} />
+                            </div>
+                            <span className="text-xs text-gray-500 w-8 text-right">{p.pct}%</span>
+                            {p.link && <a href={p.link} target="_blank" rel="noreferrer" className="text-xs text-purple-500 print:hidden">↗</a>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="pt-4 border-t border-gray-100 flex justify-between">
+                    <div className="text-xs text-gray-300">Monthly Report · Design Team</div>
+                    <button onClick={() => { if (confirm("Xóa tháng này?")) setSavedWeeks(prev => prev.filter(w => !weeks.some(sw => sw.id === w.id))); }}
+                      className="text-xs text-gray-300 hover:text-red-400 print:hidden">Xóa tháng này</button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+
+      {view === "weekly" && <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8 print:shadow-none print:border-none print:rounded-none print:p-6">
 
         {/* Header */}
         <div className="flex justify-between items-start mb-8 pb-6 border-b border-gray-100">
@@ -379,7 +532,7 @@ export default function Home() {
           <div className="text-xs text-gray-300">Weekly Report · Design Team</div>
         </div>
 
-      </div>
+      </div>}
     </main>
   );
 }

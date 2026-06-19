@@ -13,7 +13,27 @@
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f7f5; }
 
 @media print {
-  @page { margin: 16mm; size: A4; }
+  @page { margin: 15mm; size: A4 portrait; }
   body { background: white; }
-  input, select, textarea { -webkit-appearance: none; appearance: none; }
+
+  input:not([type="date"]), textarea {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  input[type="date"] { display: none !important; }
+
+  select {
+    border: none !important;
+    background: transparent !important;
+    -webkit-appearance: none;
+    appearance: none;
+    padding-right: 0 !important;
+  }
+
+  * { transition: none !important; }
 }
