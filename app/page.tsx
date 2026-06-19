@@ -273,18 +273,23 @@ export default function Home() {
                       {weeks.map(w => {
                         const done = w.tasks.filter(t => t.status === "done").length;
                         return (
-                          <div key={w.id} className="flex items-center gap-4 py-2.5 border-b border-gray-50 last:border-0">
+                          <div key={w.id} className="flex items-center gap-4 py-2.5 border-b border-gray-50 last:border-0 group/week">
                             <span className="text-xs text-gray-400 w-36 flex-shrink-0">{formatWeekLabel(w.dateFrom, w.dateTo)}</span>
                             <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${done === w.tasks.length && w.tasks.length > 0 ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-600"}`}>
                               {done}/{w.tasks.length} tasks
                             </span>
-                            <div className="flex gap-1.5 flex-wrap">
+                            <div className="flex gap-1.5 flex-wrap flex-1">
                               {w.channels.map(c => (
                                 <span key={c.id} className={`text-xs px-2 py-0.5 rounded-full ${c.done >= c.total ? "bg-emerald-100 text-emerald-700" : "bg-purple-50 text-purple-600"}`}>
                                   {c.name.split(" ")[0]}: {c.done}/{c.total}
                                 </span>
                               ))}
                             </div>
+                            <button
+                              onClick={() => setSavedWeeks(prev => prev.filter(sw => sw.id !== w.id))}
+                              className="text-xs text-gray-300 hover:text-red-400 opacity-0 group-hover/week:opacity-100 transition-opacity print:hidden flex-shrink-0"
+                              title="Xóa tuần này"
+                            >✕</button>
                           </div>
                         );
                       })}
