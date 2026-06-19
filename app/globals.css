@@ -23,7 +23,7 @@
 }
 
 * { box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F9F9F9; color: #333333; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #000000; color: #CCCCCC; }
 
 @media print {
   @page { margin: 15mm; size: A4 portrait; }
