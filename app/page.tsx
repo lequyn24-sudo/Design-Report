@@ -79,6 +79,11 @@ function getMonthLabel(dateStr: string) {
   return `Tháng ${d.getMonth() + 1} · ${d.getFullYear()}`;
 }
 
+function getWeekInMonth(dateTo: string) {
+  const d = new Date(dateTo + "T00:00:00");
+  return Math.ceil(d.getDate() / 7);
+}
+
 function formatWeekLabel(from: string, to: string) {
   if (!from || !to) return "";
   const f = new Date(from + "T00:00:00");
@@ -287,7 +292,10 @@ export default function Home() {
                           <div key={w.id}
                             onClick={() => loadWeekForEdit(w)}
                             className="flex items-center gap-4 py-2.5 px-3 -mx-3 rounded-lg border-b border-gray-50 last:border-0 hover:bg-purple-50 cursor-pointer transition-colors group/week print:hover:bg-transparent print:cursor-default">
-                            <span className="text-xs text-gray-400 w-36 flex-shrink-0">{formatWeekLabel(w.dateFrom, w.dateTo)}</span>
+                            <div className="flex flex-col w-36 flex-shrink-0">
+                              <span className="text-xs font-medium text-gray-700">Tuần {getWeekInMonth(w.dateTo)}</span>
+                              <span className="text-xs text-gray-400">{formatWeekLabel(w.dateFrom, w.dateTo)}</span>
+                            </div>
                             <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${done === w.tasks.length && w.tasks.length > 0 ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-600"}`}>
                               {done}/{w.tasks.length} tasks
                             </span>
