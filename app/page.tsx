@@ -602,7 +602,7 @@ export default function Home() {
                     className="text-gray-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs ml-1 print:hidden">✕</button>
                 </div>
                 <div className="flex items-center gap-1.5 mt-1.5 ml-5">
-                  {task.note.startsWith("http") ? (
+                  {(task.note ?? "").startsWith("http") ? (
                     <>
                       <a href={task.note} target="_blank" rel="noreferrer"
                         className="flex-1 text-xs text-purple-500 hover:text-purple-700 hover:underline truncate print:text-gray-500">
