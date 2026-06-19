@@ -207,7 +207,7 @@ export default function Home() {
   };
 
   const weeksByMonth = savedWeeks.reduce((acc, week) => {
-    const d = new Date(week.dateTo + "T00:00:00");
+    const d = new Date(week.dateFrom + "T00:00:00");
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     if (!acc[key]) acc[key] = [];
     acc[key].push(week);
