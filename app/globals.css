@@ -48,5 +48,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     padding-right: 0 !important;
   }
 
-  * { transition: none !important; }
+  * { transition: none !important; color: #000000 !important; }
+  body * { background-color: transparent !important; }
+  body { background: white !important; }
 }

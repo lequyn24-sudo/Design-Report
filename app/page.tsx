@@ -41,7 +41,7 @@ interface Channel {
 }
 
 const TAG_COLORS: Record<Tag, string> = {
-  UI: "bg-[#E85002]/20 text-[#C10801]",
+  UI: "bg-[#E85002]/20 text-[#E85002]",
   UX: "bg-amber-100 text-amber-800",
   Branding: "bg-emerald-100 text-emerald-800",
   Research: "bg-sky-100 text-sky-800",
@@ -234,11 +234,11 @@ export default function Home() {
             <button onClick={() => setView("monthly")}
               className={`px-3 py-1.5 rounded-md font-medium transition-colors ${view === "monthly" ? "bg-[#2A2A2A] text-[#F9F9F9] shadow-sm" : "text-[#999999] hover:text-[#CCCCCC]"}`}>
               Tháng này
-              {savedWeeks.length > 0 && <span className="ml-1 text-xs bg-[#E85002]/20 text-[#C10801] px-1.5 rounded-full">{savedWeeks.length}</span>}
+              {savedWeeks.length > 0 && <span className="ml-1 text-xs bg-[#E85002]/20 text-[#E85002] px-1.5 rounded-full">{savedWeeks.length}</span>}
             </button>
           </div>
           <button onClick={() => { if (confirm("Reset về dữ liệu mẫu?")) { setName("Nguyễn Minh Anh"); setRole("UI/UX Designer"); const d = getDefaultDates(); setDateFrom(d.from); setDateTo(d.to); setTasks(DEFAULT_TASKS); setProjects(DEFAULT_PROJECTS); setChannels(DEFAULT_CHANNELS); setNextWeek("• Hoàn thiện prototype checkout\n• Họp review với stakeholder\n• Bắt đầu visual design landing page"); setBlockers("• Chờ copy từ team content cho landing page\n• Cần xác nhận brand color mới từ marketing"); } }}
-            className="text-xs text-[#555555] hover:text-[#888888]">Reset</button>
+            className="text-xs text-[#999999] hover:text-[#888888]">Reset</button>
         </div>
         <div className="flex items-center gap-2">
           {view === "weekly" && (
@@ -248,7 +248,7 @@ export default function Home() {
             </button>
           )}
           <button onClick={() => window.print()}
-            className="text-sm bg-[#E85002] hover:bg-[#C10801] text-white px-4 py-2 rounded-lg font-medium transition-colors">
+            className="text-sm bg-[#E85002] hover:bg-[#C10801] text-[#000000] px-4 py-2 rounded-lg font-semibold transition-colors">
             Export PDF
           </button>
         </div>
@@ -258,8 +258,8 @@ export default function Home() {
         <div className="max-w-2xl mx-auto space-y-4">
           {savedWeeks.length === 0 ? (
             <div className="bg-[#111111] rounded-2xl border border-[#2A2A2A] p-12 text-center">
-              <div className="text-[#555555] text-sm mb-1">Chưa có tuần nào được lưu</div>
-              <div className="text-[#555555] text-xs">Bấm &quot;Lưu tuần →&quot; sau khi điền xong báo cáo tuần.</div>
+              <div className="text-[#999999] text-sm mb-1">Chưa có tuần nào được lưu</div>
+              <div className="text-[#999999] text-xs">Bấm &quot;Lưu tuần →&quot; sau khi điền xong báo cáo tuần.</div>
             </div>
           ) : (
             Object.entries(weeksByMonth).sort((a, b) => b[0].localeCompare(a[0])).map(([, weeks]) => {
@@ -280,8 +280,8 @@ export default function Home() {
                       <h2 className="text-xl font-medium text-[#F9F9F9]">{getMonthLabel(weeks[0].dateTo)}</h2>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-medium text-[#F9F9F9]">{totalDone}<span className="text-base text-[#555555]">/{totalAll}</span></div>
-                      <div className="text-xs text-[#555555]">tasks hoàn thành</div>
+                      <div className="text-2xl font-medium text-[#F9F9F9]">{totalDone}<span className="text-base text-[#999999]">/{totalAll}</span></div>
+                      <div className="text-xs text-[#999999]">tasks hoàn thành</div>
                     </div>
                   </div>
                   <div className="mb-6">
@@ -295,7 +295,7 @@ export default function Home() {
                             className="flex items-center gap-4 py-2.5 px-3 -mx-3 rounded-lg border-b border-[#222222] last:border-0 hover:bg-[#E85002]/10 cursor-pointer transition-colors group/week print:hover:bg-transparent print:cursor-default">
                             <div className="flex flex-col w-36 flex-shrink-0">
                               <span className="text-xs font-medium text-[#CCCCCC]">Tuần {getWeekInMonth(w.dateTo)}</span>
-                              <span className="text-xs text-[#555555]">{formatWeekLabel(w.dateFrom, w.dateTo)}</span>
+                              <span className="text-xs text-[#999999]">{formatWeekLabel(w.dateFrom, w.dateTo)}</span>
                             </div>
                             <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${done === w.tasks.length && w.tasks.length > 0 ? "bg-emerald-100 text-emerald-700" : "bg-[#1A1A1A] text-[#888888]"}`}>
                               {done}/{w.tasks.length} tasks
@@ -312,11 +312,11 @@ export default function Home() {
                                 onClick={e => { e.stopPropagation(); setPreviewWeek(w); }}
                                 className="text-xs text-[#999999] hover:text-[#CCCCCC] border border-[#444444] hover:border-[#666666] px-2 py-0.5 rounded-md"
                               >Xem</button>
-                              <span className="text-xs text-[#E85002]/60">Sửa →</span>
+                              <span className="text-xs text-[#E85002]">Sửa →</span>
                             </div>
                             <button
                               onClick={e => { e.stopPropagation(); setSavedWeeks(prev => prev.filter(sw => sw.id !== w.id)); }}
-                              className="text-xs text-[#555555] hover:text-red-400 print:hidden flex-shrink-0 ml-1"
+                              className="text-xs text-[#999999] hover:text-red-400 print:hidden flex-shrink-0 ml-1"
                               title="Xóa tuần này"
                             >✕</button>
                           </div>
@@ -356,7 +356,7 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="pt-4 border-t border-[#2A2A2A]">
-                    <div className="text-xs text-[#555555]">Monthly Report · Design Team</div>
+                    <div className="text-xs text-[#999999]">Monthly Report · Design Team</div>
                   </div>
                 </div>
               );
@@ -376,7 +376,7 @@ export default function Home() {
                 <div className="text-xs font-bold text-[#E85002] uppercase tracking-wider tracking-widest">Tuần {getWeekInMonth(previewWeek.dateTo)}</div>
                 <div className="text-sm font-semibold text-[#F9F9F9]">{formatWeekLabel(previewWeek.dateFrom, previewWeek.dateTo)}</div>
               </div>
-              <button onClick={() => setPreviewWeek(null)} className="text-[#555555] hover:text-[#CCCCCC] text-lg leading-none">✕</button>
+              <button onClick={() => setPreviewWeek(null)} className="text-[#999999] hover:text-[#CCCCCC] text-lg leading-none">✕</button>
             </div>
 
             <div className="px-6 py-6 space-y-6">
@@ -385,7 +385,7 @@ export default function Home() {
                 {[
                   { label: "Hoàn thành", value: `${previewWeek.tasks.filter(t => t.status === "done").length}/${previewWeek.tasks.length}`, color: "text-[#F9F9F9]" },
                   { label: "Đang thực hiện", value: previewWeek.tasks.filter(t => t.status === "inprogress").length, color: "text-amber-500" },
-                  { label: "Chưa bắt đầu", value: previewWeek.tasks.filter(t => t.status === "todo").length, color: "text-[#555555]" },
+                  { label: "Chưa bắt đầu", value: previewWeek.tasks.filter(t => t.status === "todo").length, color: "text-[#999999]" },
                 ].map(m => (
                   <div key={m.label} className="bg-[#1A1A1A] rounded-xl p-3">
                     <div className="text-xs text-[#999999] mb-1">{m.label}</div>
@@ -434,12 +434,12 @@ export default function Home() {
                                 {task.note}
                               </a>
                             ) : (
-                              <div className="text-xs text-[#555555] mt-0.5 truncate">{task.note}</div>
+                              <div className="text-xs text-[#999999] mt-0.5 truncate">{task.note}</div>
                             )
                           )}
                         </div>
                         <span className={`text-xs px-2 py-0.5 rounded font-medium flex-shrink-0 ${TAG_COLORS[task.tag]}`}>{task.tag}</span>
-                        <span className="text-xs text-[#555555] flex-shrink-0">{task.hours}</span>
+                        <span className="text-xs text-[#999999] flex-shrink-0">{task.hours}</span>
                       </div>
                     ))}
                   </div>
@@ -499,21 +499,21 @@ export default function Home() {
             <div className="flex gap-2 mt-2 flex-wrap items-center">
               <input value={name} onChange={e => setName(e.target.value)}
                 className="text-sm text-[#999999] bg-transparent border-b border-dashed border-[#444444] focus:outline-none focus:border-[#E85002] w-40 print:border-none" />
-              <span className="text-sm text-[#555555]">·</span>
+              <span className="text-sm text-[#999999]">·</span>
               <input value={role} onChange={e => setRole(e.target.value)}
                 className="text-sm text-[#999999] bg-transparent border-b border-dashed border-[#444444] focus:outline-none focus:border-[#E85002] w-36 print:border-none" />
             </div>
           </div>
           <div className="flex flex-col items-end gap-1">
-            <div className="text-xs font-medium bg-[#E85002]/10 text-[#C10801] px-3 py-1.5 rounded-lg print:block hidden">
+            <div className="text-xs font-medium bg-[#E85002]/10 text-[#E85002] px-3 py-1.5 rounded-lg print:block hidden">
               {formatWeekLabel(dateFrom, dateTo)}
             </div>
             <div className="flex items-center gap-1.5 print:hidden">
               <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-                className="text-xs text-[#C10801] bg-[#E85002]/10 border-none rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#E85002]/20 cursor-pointer" />
-              <span className="text-xs text-[#E85002]/60">–</span>
+                className="text-xs text-[#E85002] bg-[#E85002]/10 border-none rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#E85002]/20 cursor-pointer" />
+              <span className="text-xs text-[#E85002]">–</span>
               <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-                className="text-xs text-[#C10801] bg-[#E85002]/10 border-none rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#E85002]/20 cursor-pointer" />
+                className="text-xs text-[#E85002] bg-[#E85002]/10 border-none rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#E85002]/20 cursor-pointer" />
             </div>
           </div>
         </div>
@@ -530,7 +530,7 @@ export default function Home() {
           </div>
           <div className="bg-[#1A1A1A] rounded-xl p-3">
             <div className="text-xs text-[#999999] mb-1">Chưa bắt đầu</div>
-            <div className="text-2xl font-medium text-[#555555]">{tasks.filter(t => t.status === "todo").length}</div>
+            <div className="text-2xl font-medium text-[#999999]">{tasks.filter(t => t.status === "todo").length}</div>
           </div>
         </div>
 
@@ -538,7 +538,7 @@ export default function Home() {
         <div className="mb-8">
           <div className="flex justify-between items-center mb-3">
             <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider">Tiến độ dự án</div>
-            <button onClick={addProject} className="text-xs text-[#E85002] hover:text-[#C10801] font-medium print:hidden">+ Thêm dự án</button>
+            <button onClick={addProject} className="text-xs text-[#E85002] hover:text-[#E85002] font-medium print:hidden">+ Thêm dự án</button>
           </div>
           <div className="space-y-3">
             {projects.map((p, i) => (
@@ -552,28 +552,28 @@ export default function Home() {
                   <input type="number" min={0} max={100} value={p.pct}
                     onChange={e => updateProject(i, "pct", Math.min(100, Number(e.target.value)))}
                     className="text-xs text-[#999999] w-10 text-right bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
-                  <span className="text-xs text-[#555555]">%</span>
+                  <span className="text-xs text-[#999999]">%</span>
                   <button onClick={() => removeProject(i)}
-                    className="text-[#555555] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs print:hidden">✕</button>
+                    className="text-[#999999] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs print:hidden">✕</button>
                 </div>
                 <div className="flex items-center gap-1.5 mt-1 ml-0">
                   {p.link ? (
                     <>
                       <a href={p.link} target="_blank" rel="noreferrer"
-                        className="text-xs text-[#E85002] hover:text-[#C10801] truncate max-w-xs print:text-[#999999]">
+                        className="text-xs text-[#E85002] hover:text-[#E85002] truncate max-w-xs print:text-[#999999]">
                         {p.link}
                       </a>
                       <input value={p.link} onChange={e => updateProject(i, "link", e.target.value)}
                         className="sr-only" />
                       <button onClick={() => updateProject(i, "link", "")}
-                        className="text-[#555555] hover:text-red-400 text-xs flex-shrink-0 print:hidden">✕</button>
+                        className="text-[#999999] hover:text-red-400 text-xs flex-shrink-0 print:hidden">✕</button>
                     </>
                   ) : (
                     <input
                       value={p.link}
                       onChange={e => updateProject(i, "link", e.target.value)}
                       placeholder="Dán link Figma / Drive..."
-                      className="text-xs text-[#555555] bg-transparent focus:outline-none placeholder-[#555555] w-full print:hidden"
+                      className="text-xs text-[#999999] bg-transparent focus:outline-none placeholder-[#555555] w-full print:hidden"
                     />
                   )}
                 </div>
@@ -586,7 +586,7 @@ export default function Home() {
         <div className="mb-8">
           <div className="flex justify-between items-center mb-3">
             <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider">Công việc trong tuần</div>
-            <button onClick={addTask} className="text-xs text-[#E85002] hover:text-[#C10801] font-medium print:hidden">+ Thêm task</button>
+            <button onClick={addTask} className="text-xs text-[#E85002] hover:text-[#E85002] font-medium print:hidden">+ Thêm task</button>
           </div>
           <div className="space-y-2">
             {tasks.map(task => (
@@ -606,28 +606,28 @@ export default function Home() {
                     ))}
                   </select>
                   <input value={task.hours} onChange={e => updateTask(task.id, "hours", e.target.value)}
-                    className="text-xs text-[#555555] w-8 text-right bg-transparent focus:outline-none" />
+                    className="text-xs text-[#999999] w-8 text-right bg-transparent focus:outline-none" />
                   <button onClick={() => removeTask(task.id)}
-                    className="text-[#555555] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs ml-1 print:hidden">✕</button>
+                    className="text-[#999999] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs ml-1 print:hidden">✕</button>
                 </div>
                 <div className="flex items-center gap-1.5 mt-1.5 ml-5">
                   {(task.note ?? "").startsWith("http") ? (
                     <>
                       <a href={task.note} target="_blank" rel="noreferrer"
-                        className="flex-1 text-xs text-[#E85002] hover:text-[#C10801] hover:underline truncate print:text-[#999999]">
+                        className="flex-1 text-xs text-[#E85002] hover:text-[#E85002] hover:underline truncate print:text-[#999999]">
                         {task.note}
                       </a>
                       <button onClick={() => updateTask(task.id, "note", "")}
-                        className="text-[#555555] hover:text-red-400 text-xs flex-shrink-0 print:hidden">✕</button>
+                        className="text-[#999999] hover:text-red-400 text-xs flex-shrink-0 print:hidden">✕</button>
                     </>
                   ) : (
                     <>
-                      <span className="text-[#555555] text-xs print:hidden">↗</span>
+                      <span className="text-[#999999] text-xs print:hidden">↗</span>
                       <input
                         value={task.note}
                         onChange={e => updateTask(task.id, "note", e.target.value)}
                         placeholder="Link hoặc ghi chú..."
-                        className="flex-1 text-xs text-[#555555] bg-transparent focus:outline-none placeholder-[#555555] print:placeholder-transparent"
+                        className="flex-1 text-xs text-[#999999] bg-transparent focus:outline-none placeholder-[#555555] print:placeholder-transparent"
                       />
                     </>
                   )}
@@ -641,7 +641,7 @@ export default function Home() {
         <div className="mb-8">
           <div className="flex justify-between items-center mb-3">
             <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider">Daily output – Banner</div>
-            <button onClick={addChannel} className="text-xs text-[#E85002] hover:text-[#C10801] font-medium print:hidden">+ Thêm kênh</button>
+            <button onClick={addChannel} className="text-xs text-[#E85002] hover:text-[#E85002] font-medium print:hidden">+ Thêm kênh</button>
           </div>
           <div className="space-y-2.5">
             {channels.map(c => {
@@ -659,14 +659,14 @@ export default function Home() {
                     <input type="number" min={0} max={c.total} value={c.done}
                       onChange={e => updateChannel(c.id, "done", Math.min(c.total, Number(e.target.value)))}
                       className="text-xs text-[#CCCCCC] font-medium w-6 text-right bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
-                    <span className="text-xs text-[#555555]">/</span>
+                    <span className="text-xs text-[#999999]">/</span>
                     <input type="number" min={1} value={c.total}
                       onChange={e => updateChannel(c.id, "total", Math.max(1, Number(e.target.value)))}
-                      className="text-xs text-[#555555] w-6 bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
-                    <span className="text-xs text-[#555555] ml-0.5">posts</span>
+                      className="text-xs text-[#999999] w-6 bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+                    <span className="text-xs text-[#999999] ml-0.5">posts</span>
                   </div>
                   <button onClick={() => removeChannel(c.id)}
-                    className="text-[#555555] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs print:hidden">✕</button>
+                    className="text-[#999999] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs print:hidden">✕</button>
                 </div>
               );
             })}
@@ -693,13 +693,13 @@ export default function Home() {
         <div className="flex justify-between items-center pt-4 border-t border-[#2A2A2A]">
           <div className="flex gap-4">
             {(["done", "inprogress", "todo"] as Status[]).map(s => (
-              <span key={s} className="flex items-center gap-1.5 text-xs text-[#555555]">
+              <span key={s} className="flex items-center gap-1.5 text-xs text-[#999999]">
                 <span className={`w-2 h-2 rounded-full ${STATUS_COLORS[s]}`} />
                 {STATUS_LABELS[s]}
               </span>
             ))}
           </div>
-          <div className="text-xs text-[#555555]">Weekly Report · Design Team</div>
+          <div className="text-xs text-[#999999]">Weekly Report · Design Team</div>
         </div>
 
       </div>}
