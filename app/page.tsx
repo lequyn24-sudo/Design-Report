@@ -11,6 +11,7 @@ interface Task {
   tag: Tag;
   status: Status;
   hours: string;
+  note: string;
 }
 
 interface Project {
@@ -82,11 +83,11 @@ function loadSaved() {
 }
 
 const DEFAULT_TASKS: Task[] = [
-  { id: 1, name: "Thiết kế luồng thanh toán (checkout flow)", tag: "UI", status: "done", hours: "8h" },
-  { id: 2, name: "Cập nhật icon set trong design system", tag: "Branding", status: "done", hours: "4h" },
-  { id: 3, name: "User testing – màn hình onboarding", tag: "Research", status: "done", hours: "3h" },
-  { id: 4, name: "Wireframe landing page Q3 campaign", tag: "UX", status: "inprogress", hours: "5h" },
-  { id: 5, name: "Handoff file cho dev – sprint 12", tag: "UI", status: "todo", hours: "—" },
+  { id: 1, name: "Thiết kế luồng thanh toán (checkout flow)", tag: "UI", status: "done", hours: "8h", note: "" },
+  { id: 2, name: "Cập nhật icon set trong design system", tag: "Branding", status: "done", hours: "4h", note: "" },
+  { id: 3, name: "User testing – màn hình onboarding", tag: "Research", status: "done", hours: "3h", note: "" },
+  { id: 4, name: "Wireframe landing page Q3 campaign", tag: "UX", status: "inprogress", hours: "5h", note: "" },
+  { id: 5, name: "Handoff file cho dev – sprint 12", tag: "UI", status: "todo", hours: "—", note: "" },
 ];
 
 const DEFAULT_CHANNELS: Channel[] = [
@@ -121,7 +122,7 @@ export default function Home() {
   const tasksDone = tasks.filter(t => t.status === "done").length;
 
   const addTask = () =>
-    setTasks(prev => [...prev, { id: Date.now(), name: "Task mới", tag: "UI", status: "todo", hours: "—" }]);
+    setTasks(prev => [...prev, { id: Date.now(), name: "Task mới", tag: "UI", status: "todo", hours: "—", note: "" }]);
 
   const updateTask = (id: number, field: keyof Task, value: string) =>
     setTasks(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
@@ -255,24 +256,35 @@ export default function Home() {
           </div>
           <div className="space-y-2">
             {tasks.map(task => (
-              <div key={task.id} className="flex items-center gap-3 border border-gray-100 rounded-xl px-4 py-3 hover:border-gray-200 transition-colors group">
-                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${STATUS_COLORS[task.status]}`} />
-                <input value={task.name} onChange={e => updateTask(task.id, "name", e.target.value)}
-                  className="flex-1 text-sm text-gray-800 bg-transparent focus:outline-none min-w-0" />
-                <select value={task.tag} onChange={e => updateTask(task.id, "tag", e.target.value as Tag)}
-                  className={`text-xs px-2 py-0.5 rounded font-medium border-none focus:outline-none cursor-pointer ${TAG_COLORS[task.tag]}`}>
-                  {TAGS.map(t => <option key={t}>{t}</option>)}
-                </select>
-                <select value={task.status} onChange={e => updateTask(task.id, "status", e.target.value as Status)}
-                  className="text-xs text-gray-500 bg-transparent border-none focus:outline-none cursor-pointer">
-                  {(["done", "inprogress", "todo"] as Status[]).map(s => (
-                    <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-                  ))}
-                </select>
-                <input value={task.hours} onChange={e => updateTask(task.id, "hours", e.target.value)}
-                  className="text-xs text-gray-400 w-8 text-right bg-transparent focus:outline-none" />
-                <button onClick={() => removeTask(task.id)}
-                  className="text-gray-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs ml-1 print:hidden">✕</button>
+              <div key={task.id} className="border border-gray-100 rounded-xl px-4 py-3 hover:border-gray-200 transition-colors group">
+                <div className="flex items-center gap-3">
+                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${STATUS_COLORS[task.status]}`} />
+                  <input value={task.name} onChange={e => updateTask(task.id, "name", e.target.value)}
+                    className="flex-1 text-sm text-gray-800 bg-transparent focus:outline-none min-w-0" />
+                  <select value={task.tag} onChange={e => updateTask(task.id, "tag", e.target.value as Tag)}
+                    className={`text-xs px-2 py-0.5 rounded font-medium border-none focus:outline-none cursor-pointer ${TAG_COLORS[task.tag]}`}>
+                    {TAGS.map(t => <option key={t}>{t}</option>)}
+                  </select>
+                  <select value={task.status} onChange={e => updateTask(task.id, "status", e.target.value as Status)}
+                    className="text-xs text-gray-500 bg-transparent border-none focus:outline-none cursor-pointer">
+                    {(["done", "inprogress", "todo"] as Status[]).map(s => (
+                      <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                    ))}
+                  </select>
+                  <input value={task.hours} onChange={e => updateTask(task.id, "hours", e.target.value)}
+                    className="text-xs text-gray-400 w-8 text-right bg-transparent focus:outline-none" />
+                  <button onClick={() => removeTask(task.id)}
+                    className="text-gray-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs ml-1 print:hidden">✕</button>
+                </div>
+                <div className="flex items-center gap-1.5 mt-1.5 ml-5">
+                  <span className="text-gray-300 text-xs print:hidden">↗</span>
+                  <input
+                    value={task.note}
+                    onChange={e => updateTask(task.id, "note", e.target.value)}
+                    placeholder="Link hoặc ghi chú..."
+                    className="flex-1 text-xs text-gray-400 bg-transparent focus:outline-none placeholder-gray-200 print:placeholder-transparent"
+                  />
+                </div>
               </div>
             ))}
           </div>
