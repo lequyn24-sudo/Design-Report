@@ -128,6 +128,7 @@ const DEFAULT_PROJECTS: Project[] = [
 export default function Home() {
   const [view, setView] = useState<View>("weekly");
   const [savedWeeks, setSavedWeeks] = useState<WeekSnapshot[]>(() => loadSaved()?.savedWeeks ?? []);
+  const [previewWeek, setPreviewWeek] = useState<WeekSnapshot | null>(null);
   const [name, setName] = useState(() => loadSaved()?.name ?? "Nguyễn Minh Anh");
   const [role, setRole] = useState(() => loadSaved()?.role ?? "UI/UX Designer");
   const defaultDates = getDefaultDates();
@@ -306,7 +307,13 @@ export default function Home() {
                                 </span>
                               ))}
                             </div>
-                            <span className="text-xs text-purple-400 opacity-0 group-hover/week:opacity-100 transition-opacity print:hidden flex-shrink-0">Chỉnh sửa →</span>
+                            <div className="flex items-center gap-2 opacity-0 group-hover/week:opacity-100 transition-opacity print:hidden flex-shrink-0">
+                              <button
+                                onClick={e => { e.stopPropagation(); setPreviewWeek(w); }}
+                                className="text-xs text-gray-500 hover:text-gray-800 border border-gray-200 hover:border-gray-400 px-2 py-0.5 rounded-md"
+                              >Xem</button>
+                              <span className="text-xs text-purple-400">Sửa →</span>
+                            </div>
                             <button
                               onClick={e => { e.stopPropagation(); setSavedWeeks(prev => prev.filter(sw => sw.id !== w.id)); }}
                               className="text-xs text-gray-300 hover:text-red-400 print:hidden flex-shrink-0 ml-1"
@@ -355,6 +362,122 @@ export default function Home() {
               );
             })
           )}
+        </div>
+      )}
+
+      {/* Preview modal */}
+      {previewWeek && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 print:hidden" onClick={() => setPreviewWeek(null)}>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            {/* Modal header */}
+            <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center rounded-t-2xl z-10">
+              <div>
+                <div className="text-xs text-gray-400 uppercase tracking-wider">Tuần {getWeekInMonth(previewWeek.dateTo)}</div>
+                <div className="text-sm font-medium text-gray-800">{formatWeekLabel(previewWeek.dateFrom, previewWeek.dateTo)}</div>
+              </div>
+              <button onClick={() => setPreviewWeek(null)} className="text-gray-400 hover:text-gray-700 text-lg leading-none">✕</button>
+            </div>
+
+            <div className="px-6 py-6 space-y-6">
+              {/* Metrics */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: "Hoàn thành", value: `${previewWeek.tasks.filter(t => t.status === "done").length}/${previewWeek.tasks.length}`, color: "text-gray-900" },
+                  { label: "Đang thực hiện", value: previewWeek.tasks.filter(t => t.status === "inprogress").length, color: "text-amber-500" },
+                  { label: "Chưa bắt đầu", value: previewWeek.tasks.filter(t => t.status === "todo").length, color: "text-gray-400" },
+                ].map(m => (
+                  <div key={m.label} className="bg-gray-50 rounded-xl p-3">
+                    <div className="text-xs text-gray-500 mb-1">{m.label}</div>
+                    <div className={`text-2xl font-medium ${m.color}`}>{m.value}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Projects */}
+              {previewWeek.projects.length > 0 && (
+                <div>
+                  <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Tiến độ dự án</div>
+                  <div className="space-y-2.5">
+                    {previewWeek.projects.map((p, i) => (
+                      <div key={i}>
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm text-gray-700 w-44 truncate flex-shrink-0">{p.name}</span>
+                          <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full rounded-full" style={{ width: `${p.pct}%`, background: p.color }} />
+                          </div>
+                          <span className="text-xs text-gray-500 w-8 text-right">{p.pct}%</span>
+                        </div>
+                        {p.link && (
+                          <a href={p.link} target="_blank" rel="noreferrer" className="text-xs text-purple-500 hover:underline ml-0 mt-0.5 block truncate">{p.link}</a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Tasks */}
+              {previewWeek.tasks.length > 0 && (
+                <div>
+                  <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Công việc trong tuần</div>
+                  <div className="space-y-2">
+                    {previewWeek.tasks.map(task => (
+                      <div key={task.id} className={`flex items-start gap-3 rounded-xl px-4 py-3 border ${task.status === "done" ? "border-emerald-100 bg-emerald-50/40" : task.status === "inprogress" ? "border-amber-100 bg-amber-50/40" : "border-gray-100"}`}>
+                        <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-1 ${STATUS_COLORS[task.status]}`} />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm text-gray-800">{task.name}</div>
+                          {task.note && <div className="text-xs text-gray-400 mt-0.5 truncate">{task.note}</div>}
+                        </div>
+                        <span className={`text-xs px-2 py-0.5 rounded font-medium flex-shrink-0 ${TAG_COLORS[task.tag]}`}>{task.tag}</span>
+                        <span className="text-xs text-gray-400 flex-shrink-0">{task.hours}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Daily output */}
+              {previewWeek.channels.length > 0 && (
+                <div>
+                  <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Daily output – Banner</div>
+                  <div className="space-y-2">
+                    {previewWeek.channels.map(c => {
+                      const pct = c.total > 0 ? Math.min(100, (c.done / c.total) * 100) : 0;
+                      const allDone = c.done >= c.total && c.total > 0;
+                      return (
+                        <div key={c.id} className="flex items-center gap-3">
+                          <span className="text-sm text-gray-700 w-40 flex-shrink-0">{c.name}</span>
+                          <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full rounded-full" style={{ width: `${pct}%`, background: allDone ? "#1D9E75" : "#a78bfa" }} />
+                          </div>
+                          <span className="text-xs text-gray-500 flex-shrink-0">{c.done}/{c.total} posts</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Next week + Blockers */}
+              {(previewWeek.nextWeek || previewWeek.blockers) && (
+                <div className="grid grid-cols-2 gap-4">
+                  {previewWeek.nextWeek && (
+                    <div className="border border-gray-100 rounded-xl p-4">
+                      <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Kế hoạch tuần tới</div>
+                      <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">{previewWeek.nextWeek}</p>
+                    </div>
+                  )}
+                  {previewWeek.blockers && (
+                    <div className="border border-gray-100 rounded-xl p-4">
+                      <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Blockers / cần hỗ trợ</div>
+                      <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">{previewWeek.blockers}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
