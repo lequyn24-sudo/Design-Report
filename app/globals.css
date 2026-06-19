@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+:root {
+  --purple-50: #EEEDFE;
+  --purple-800: #3C3489;
+  --teal-500: #1D9E75;
+  --amber-600: #BA7517;
+  --gray-400: #888780;
+  --coral-600: #993C1D;
+}
+
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f7f5; }
