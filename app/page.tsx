@@ -170,6 +170,17 @@ export default function Home() {
   const removeChannel = (id: number) =>
     setChannels(prev => prev.filter(c => c.id !== id));
 
+  const loadWeekForEdit = (w: WeekSnapshot) => {
+    setDateFrom(w.dateFrom);
+    setDateTo(w.dateTo);
+    setTasks(w.tasks);
+    setChannels(w.channels);
+    setProjects(w.projects);
+    setNextWeek(w.nextWeek);
+    setBlockers(w.blockers);
+    setView("weekly");
+  };
+
   const saveWeek = () => {
     const snapshot: WeekSnapshot = {
       id: dateFrom, dateFrom, dateTo,
@@ -285,11 +296,18 @@ export default function Home() {
                                 </span>
                               ))}
                             </div>
-                            <button
-                              onClick={() => setSavedWeeks(prev => prev.filter(sw => sw.id !== w.id))}
-                              className="text-xs text-gray-300 hover:text-red-400 opacity-0 group-hover/week:opacity-100 transition-opacity print:hidden flex-shrink-0"
-                              title="Xóa tuần này"
-                            >✕</button>
+                            <div className="flex items-center gap-2 opacity-0 group-hover/week:opacity-100 transition-opacity print:hidden flex-shrink-0">
+                              <button
+                                onClick={() => loadWeekForEdit(w)}
+                                className="text-xs text-purple-400 hover:text-purple-600"
+                                title="Chỉnh sửa tuần này"
+                              >Sửa</button>
+                              <button
+                                onClick={() => setSavedWeeks(prev => prev.filter(sw => sw.id !== w.id))}
+                                className="text-xs text-gray-300 hover:text-red-400"
+                                title="Xóa tuần này"
+                              >✕</button>
+                            </div>
                           </div>
                         );
                       })}
