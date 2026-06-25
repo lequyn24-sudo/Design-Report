@@ -245,11 +245,8 @@ export default function Home() {
     setSavedWeeks(prev => {
       const idx = prev.findIndex(w => w.id === snapshot.id);
       const updated = idx >= 0 ? prev.map((w, i) => i === idx ? snapshot : w) : [...prev, snapshot];
-      return updated.sort((a, b) => a.dateFrom.localeCompare(b.dateFrom));
+      return updated.sort((a, b) => (a.dateFrom as string).localeCompare(b.dateFrom as string));
     });
-    const nextFri = new Date(dateTo + "T00:00:00");
-    setSavedWeeks(prev => [...prev, newWeek]);
-    
     // reset for next week: carry over uncompleted tasks
     setTasks(tasks.filter(t => t.status !== "done"));
     setChannels(prev => prev.map(c => ({ ...c, done: 0 })));
