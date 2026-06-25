@@ -31,7 +31,8 @@ interface Project {
   id: number;
   name: string;
   color: string;
-  link: string;
+  link?: string;
+  pct?: number | string;
 }
 
 interface Channel {
@@ -145,13 +146,18 @@ export default function Home() {
   useEffect(() => {
     const saved = loadSaved();
     if (saved) {
-      if (saved.savedWeeks) setSavedWeeks(saved.savedWeeks);
+      if (saved.savedWeeks) {
+        setSavedWeeks(saved.savedWeeks.map((w: any) => ({
+          ...w,
+          projects: w.projects?.map((p: any) => ({ ...p, id: p.id || Date.now() + Math.random() })) || []
+        })));
+      }
       if (saved.name) setName(saved.name);
       if (saved.role) setRole(saved.role);
       if (saved.dateFrom) setDateFrom(saved.dateFrom);
       if (saved.dateTo) setDateTo(saved.dateTo);
       if (saved.tasks) setTasks(saved.tasks);
-      if (saved.projects) setProjects(saved.projects);
+      if (saved.projects) setProjects(saved.projects.map((p: any) => ({ ...p, id: p.id || Date.now() + Math.random() })));
       if (saved.channels) setChannels(saved.channels);
       if (saved.nextWeek) setNextWeek(saved.nextWeek);
       if (saved.blockers) setBlockers(saved.blockers);
@@ -278,7 +284,7 @@ export default function Home() {
       {view === "monthly" && (
         <div className="max-w-2xl mx-auto space-y-4">
           {savedWeeks.length === 0 ? (
-            <div className="bg-white shadow-sm border border-slate-200 rounded-2xl border border-slate-200 p-12 text-center">
+            <div className="bg-white shadow-sm border border-slate-200 rounded-2xl p-12 text-center">
               <div className="text-slate-500 text-sm mb-1">Chưa có tuần nào được lưu</div>
               <div className="text-slate-500 text-xs">Bấm &quot;Lưu tuần →&quot; sau khi điền xong báo cáo tuần.</div>
             </div>
@@ -294,7 +300,7 @@ export default function Home() {
               }));
               const latestProjects = weeks[weeks.length - 1].projects;
               return (
-                <div key={weeks[0].id} className="bg-white shadow-sm border border-slate-200 rounded-2xl shadow-sm border border-slate-200 p-8 print:shadow-none print:border-none print:bg-white">
+                <div key={weeks[0].id} className="bg-white shadow-sm border border-slate-200 rounded-2xl p-8 print:shadow-none print:border-none print:bg-white">
                   <div className="flex justify-between items-center mb-6 pb-5 border-b border-slate-200">
                     <div>
                       <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Báo cáo tháng</div>
@@ -366,7 +372,7 @@ export default function Home() {
                         {latestProjects.map((p, i) => {
                           const allTasks = [...savedWeeks.flatMap(w => w.tasks), ...tasks].filter(t => t.projectId === p.id);
                           const doneTasks = allTasks.filter(t => t.status === "done").length;
-                          const pct = allTasks.length > 0 ? Math.round((doneTasks / allTasks.length) * 100) : 0;
+                          const pct = allTasks.length > 0 ? Math.round((doneTasks / allTasks.length) * 100) : (p.pct !== undefined ? Number(p.pct) : 0);
                           return (
                           <div key={i} className="flex items-center gap-2">
                             <span className="text-sm text-slate-800 truncate w-28">{p.name}</span>
@@ -427,7 +433,7 @@ export default function Home() {
                     {previewWeek.projects.map((p, i) => {
                       const allTasks = [...savedWeeks.flatMap(w => w.tasks), ...tasks].filter(t => t.projectId === p.id);
                       const doneTasks = allTasks.filter(t => t.status === "done").length;
-                      const pct = allTasks.length > 0 ? Math.round((doneTasks / allTasks.length) * 100) : 0;
+                      const pct = allTasks.length > 0 ? Math.round((doneTasks / allTasks.length) * 100) : (p.pct !== undefined ? Number(p.pct) : 0);
                       return (
                       <div key={i}>
                         <div className="flex items-center gap-3">
@@ -519,7 +525,7 @@ export default function Home() {
         </div>
       )}
 
-      {view === "weekly" && <div className="max-w-2xl mx-auto bg-white shadow-sm border border-slate-200 rounded-2xl shadow-sm border border-slate-200 p-8 print:shadow-none print:border-none print:rounded-none print:p-6 print:bg-white">
+      {view === "weekly" && <div className="max-w-2xl mx-auto bg-white shadow-sm border border-slate-200 rounded-2xl p-8 print:shadow-none print:border-none print:rounded-none print:p-6 print:bg-white">
 
         {/* Header */}
         <div className="flex justify-between items-start mb-8 pb-6 border-b border-slate-200">
@@ -571,10 +577,11 @@ export default function Home() {
           </div>
           <div className="space-y-3">
             {projects.map((p, i) => {
-              const allTasks = [...savedWeeks.flatMap(w => w.tasks), ...tasks].filter(t => t.projectId === p.id);
-              const doneTasks = allTasks.filter(t => t.status === "done").length;
-              const pct = allTasks.length > 0 ? Math.round((doneTasks / allTasks.length) * 100) : 0;
-              const isDone = pct === 100 && allTasks.length > 0;
+              const doneTasks = tasks.filter(t => t.projectId === p.id && t.status === "done").length;
+              const totalTasks = tasks.filter(t => t.projectId === p.id).length;
+              const isDone = totalTasks > 0 && doneTasks === totalTasks;
+              const pct = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : (p.pct !== undefined ? Number(p.pct) : 0);
+
               return (
               <div key={p.id} className="group relative">
                 <div className="flex items-center gap-3">
