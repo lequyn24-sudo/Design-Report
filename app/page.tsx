@@ -19,6 +19,7 @@ interface WeekSnapshot {
 
 interface Task {
   id: number;
+  projectId: number | null;
   name: string;
   tag: Tag;
   status: Status;
@@ -27,8 +28,8 @@ interface Task {
 }
 
 interface Project {
+  id: number;
   name: string;
-  pct: number;
   color: string;
   link: string;
 }
@@ -106,11 +107,11 @@ function loadSaved() {
 }
 
 const DEFAULT_TASKS: Task[] = [
-  { id: 1, name: "Thiết kế luồng thanh toán (checkout flow)", tag: "UI", status: "done", hours: "8h", note: "" },
-  { id: 2, name: "Cập nhật icon set trong design system", tag: "Branding", status: "done", hours: "4h", note: "" },
-  { id: 3, name: "User testing – màn hình onboarding", tag: "Research", status: "done", hours: "3h", note: "" },
-  { id: 4, name: "Wireframe landing page Q3 campaign", tag: "UX", status: "inprogress", hours: "5h", note: "" },
-  { id: 5, name: "Handoff file cho dev – sprint 12", tag: "UI", status: "todo", hours: "—", note: "" },
+  { id: 1, projectId: 1, name: "Thiết kế luồng thanh toán (checkout flow)", tag: "UI", status: "done", hours: "8h", note: "" },
+  { id: 2, projectId: 2, name: "Cập nhật icon set trong design system", tag: "Branding", status: "done", hours: "4h", note: "" },
+  { id: 3, projectId: 1, name: "User testing – màn hình onboarding", tag: "Research", status: "done", hours: "3h", note: "" },
+  { id: 4, projectId: 3, name: "Wireframe landing page Q3 campaign", tag: "UX", status: "inprogress", hours: "5h", note: "" },
+  { id: 5, projectId: 1, name: "Handoff file cho dev – sprint 12", tag: "UI", status: "todo", hours: "—", note: "" },
 ];
 
 const DEFAULT_CHANNELS: Channel[] = [
@@ -120,9 +121,9 @@ const DEFAULT_CHANNELS: Channel[] = [
 ];
 
 const DEFAULT_PROJECTS: Project[] = [
-  { name: "App redesign – Checkout", pct: 85, color: "#1D9E75", link: "" },
-  { name: "Design system v2", pct: 60, color: "#E85002", link: "" },
-  { name: "Landing page – Q3", pct: 30, color: "#BA7517", link: "" },
+  { id: 1, name: "App redesign – Checkout", color: "#1D9E75", link: "" },
+  { id: 2, name: "Design system v2", color: "#E85002", link: "" },
+  { id: 3, name: "Landing page – Q3", color: "#BA7517", link: "" },
 ];
 
 export default function Home() {
@@ -168,7 +169,7 @@ export default function Home() {
   const tasksDone = tasks.filter(t => t.status === "done").length;
 
   const addTask = () =>
-    setTasks(prev => [...prev, { id: Date.now(), name: "Task mới", tag: "UI", status: "todo", hours: "—", note: "" }]);
+    setTasks(prev => [...prev, { id: Date.now(), projectId: null, name: "Task mới", tag: "UI", status: "todo", hours: "—", note: "" }]);
 
   const updateTask = (id: number, field: keyof Task, value: string) =>
     setTasks(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
@@ -178,7 +179,7 @@ export default function Home() {
 
   const addProject = () => {
     const color = PROJECT_COLORS[projects.length % PROJECT_COLORS.length];
-    setProjects(prev => [...prev, { name: "Dự án mới", pct: 0, color, link: "" }]);
+    setProjects(prev => [...prev, { id: Date.now(), name: "Dự án mới", color, link: "" }]);
   };
 
   const updateProject = (i: number, field: keyof Project, value: string | number) =>
@@ -561,22 +562,28 @@ export default function Home() {
             <button onClick={addProject} className="text-xs text-[#E85002] hover:text-[#E85002] font-medium print:hidden">+ Thêm dự án</button>
           </div>
           <div className="space-y-3">
-            {projects.map((p, i) => (
-              <div key={i} className="group">
+            {projects.map((p, i) => {
+              const allTasks = [...savedWeeks.flatMap(w => w.tasks), ...tasks].filter(t => t.projectId === p.id);
+              const doneTasks = allTasks.filter(t => t.status === "done").length;
+              const pct = allTasks.length > 0 ? Math.round((doneTasks / allTasks.length) * 100) : 0;
+              const isDone = pct === 100 && allTasks.length > 0;
+              return (
+              <div key={p.id} className="group relative">
                 <div className="flex items-center gap-3">
                   <input value={p.name} onChange={e => updateProject(i, "name", e.target.value)}
                     className="text-sm text-slate-800 bg-transparent focus:outline-none w-44 border-b border-dashed border-[#444444] focus:border-[#E85002] print:border-none flex-shrink-0" />
                   <div className="flex-1 h-1.5 bg-slate-50 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full transition-all" style={{ width: `${p.pct}%`, background: p.color }} />
+                    <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: p.color }} />
                   </div>
-                  <input type="number" min={0} max={100} value={p.pct}
-                    onChange={e => updateProject(i, "pct", Math.min(100, Number(e.target.value)))}
-                    className="text-xs text-slate-500 w-10 text-right bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
-                  <span className="text-xs text-slate-500">%</span>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <span className="text-sm font-medium text-slate-800 w-8 text-right">{pct}</span>
+                    <span className="text-xs text-slate-500">%</span>
+                    {isDone && <span className="ml-2 text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-medium">Hoàn thành</span>}
+                  </div>
                   <button onClick={() => removeProject(i)}
                     className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs print:hidden">✕</button>
                 </div>
-                <div className="flex items-center gap-1.5 mt-1 ml-0">
+                <div className="mt-1 ml-[188px] flex items-center gap-2">
                   {p.link ? (
                     <>
                       <a href={p.link} target="_blank" rel="noreferrer"
@@ -584,19 +591,14 @@ export default function Home() {
                         {p.link}
                       </a>
                       <input value={p.link} onChange={e => updateProject(i, "link", e.target.value)}
-                        className="sr-only" />
+                        placeholder="Đổi link..."
+                        className="text-xs text-slate-500 bg-transparent border-b border-dashed border-[#444444] focus:outline-none focus:border-[#E85002] w-24 print:hidden" />
                       <button onClick={() => updateProject(i, "link", "")}
                         className="text-slate-500 hover:text-red-400 text-xs flex-shrink-0 print:hidden">✕</button>
                     </>
                   ) : (
-                    <input
-                      value={p.link}
-                      onChange={e => updateProject(i, "link", e.target.value)}
+                    <input value={p.link} onChange={e => updateProject(i, "link", e.target.value)}
                       placeholder="Dán link Figma / Drive..."
-                      className="text-xs text-slate-500 bg-transparent focus:outline-none placeholder-[#555555] w-full print:hidden"
-                    />
-                  )}
-                </div>
               </div>
             ))}
           </div>
@@ -615,6 +617,11 @@ export default function Home() {
                   <div className={`w-2 h-2 rounded-full flex-shrink-0 ${STATUS_COLORS[task.status]}`} />
                   <input value={task.name} onChange={e => updateTask(task.id, "name", e.target.value)}
                     className="flex-1 text-sm text-slate-800 bg-transparent focus:outline-none min-w-0" />
+                  <select value={task.projectId || ""} onChange={e => updateTask(task.id, "projectId", e.target.value ? Number(e.target.value) : null)}
+                    className="text-xs text-slate-500 bg-transparent border-none focus:outline-none cursor-pointer max-w-[120px] truncate">
+                    <option value="">-- Dự án --</option>
+                    {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </select>
                   <select value={task.tag} onChange={e => updateTask(task.id, "tag", e.target.value as Tag)}
                     className={`text-xs px-2 py-0.5 rounded font-medium border-none focus:outline-none cursor-pointer ${TAG_COLORS[task.tag]}`}>
                     {TAGS.map(t => <option key={t}>{t}</option>)}
