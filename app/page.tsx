@@ -41,7 +41,7 @@ interface Channel {
 }
 
 const TAG_COLORS: Record<Tag, string> = {
-  UI: "bg-[#00F0FF]/20 text-[#00F0FF]",
+  UI: "bg-[#E85002]/20 text-[#E85002]",
   UX: "bg-amber-100 text-amber-800",
   Branding: "bg-emerald-100 text-emerald-800",
   Research: "bg-sky-100 text-sky-800",
@@ -241,34 +241,34 @@ export default function Home() {
   }, {} as Record<string, WeekSnapshot[]>);
 
   return (
-    <main className="min-h-screen bg-transparent py-10 px-4 print:bg-white print:py-0 print:px-0">
+    <main className="min-h-screen bg-[#F8FAFC] py-10 px-4 print:bg-white print:py-0 print:px-0">
 
       {/* Toolbar */}
       <div className="max-w-2xl mx-auto mb-4 flex justify-between items-center print:hidden">
         <div className="flex items-center gap-3">
-          <div className="flex bg-white/5 backdrop-blur-md border border-white/10 rounded-lg p-0.5 text-sm">
+          <div className="flex bg-white shadow-sm border border-slate-200 rounded-lg p-0.5 text-sm">
             <button onClick={() => setView("weekly")}
-              className={`px-3 py-1.5 rounded-md font-medium transition-colors ${view === "weekly" ? "bg-white/20 text-[#F9F9F9] shadow-sm" : "text-[#999999] hover:text-[#CCCCCC]"}`}>
+              className={`px-3 py-1.5 rounded-md font-medium transition-colors ${view === "weekly" ? "bg-white/20 text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-800"}`}>
               Tuần này
             </button>
             <button onClick={() => setView("monthly")}
-              className={`px-3 py-1.5 rounded-md font-medium transition-colors ${view === "monthly" ? "bg-white/20 text-[#F9F9F9] shadow-sm" : "text-[#999999] hover:text-[#CCCCCC]"}`}>
+              className={`px-3 py-1.5 rounded-md font-medium transition-colors ${view === "monthly" ? "bg-white/20 text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-800"}`}>
               Tháng này
-              {savedWeeks.length > 0 && <span className="ml-1 text-xs bg-[#00F0FF]/20 text-[#00F0FF] px-1.5 rounded-full">{savedWeeks.length}</span>}
+              {savedWeeks.length > 0 && <span className="ml-1 text-xs bg-[#E85002]/20 text-[#E85002] px-1.5 rounded-full">{savedWeeks.length}</span>}
             </button>
           </div>
           <button onClick={() => { if (confirm("Reset về dữ liệu mẫu?")) { setName("Nguyễn Minh Anh"); setRole("UI/UX Designer"); const d = getDefaultDates(); setDateFrom(d.from); setDateTo(d.to); setTasks(DEFAULT_TASKS); setProjects(DEFAULT_PROJECTS); setChannels(DEFAULT_CHANNELS); setNextWeek("• Hoàn thiện prototype checkout\n• Họp review với stakeholder\n• Bắt đầu visual design landing page"); setBlockers("• Chờ copy từ team content cho landing page\n• Cần xác nhận brand color mới từ marketing"); } }}
-            className="text-xs text-[#999999] hover:text-[#888888]">Reset</button>
+            className="text-xs text-slate-500 hover:text-slate-500">Reset</button>
         </div>
         <div className="flex items-center gap-2">
           {view === "weekly" && (
             <button onClick={() => { if (confirm(`Lưu tuần ${formatWeekLabel(dateFrom, dateTo)} vào báo cáo tháng?`)) saveWeek(); }}
-              className="text-sm border border-[#E85002]/40 text-[#00F0FF] hover:bg-[#00F0FF]/10 px-3 py-2 rounded-lg font-medium transition-colors">
+              className="text-sm border border-[#E85002]/40 text-[#E85002] hover:bg-[#E85002]/10 px-3 py-2 rounded-lg font-medium transition-colors">
               Lưu tuần →
             </button>
           )}
           <button onClick={() => window.print()}
-            className="text-sm bg-[#00F0FF] hover:bg-[#C10801] text-[#000000] px-4 py-2 rounded-lg font-semibold transition-colors">
+            className="text-sm bg-[#E85002] hover:bg-[#C10801] text-white px-4 py-2 rounded-lg font-semibold transition-colors">
             Export PDF
           </button>
         </div>
@@ -277,9 +277,9 @@ export default function Home() {
       {view === "monthly" && (
         <div className="max-w-2xl mx-auto space-y-4">
           {savedWeeks.length === 0 ? (
-            <div className="bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 p-12 text-center">
-              <div className="text-[#999999] text-sm mb-1">Chưa có tuần nào được lưu</div>
-              <div className="text-[#999999] text-xs">Bấm &quot;Lưu tuần →&quot; sau khi điền xong báo cáo tuần.</div>
+            <div className="bg-white shadow-sm border border-slate-200 rounded-2xl border border-slate-200 p-12 text-center">
+              <div className="text-slate-500 text-sm mb-1">Chưa có tuần nào được lưu</div>
+              <div className="text-slate-500 text-xs">Bấm &quot;Lưu tuần →&quot; sau khi điền xong báo cáo tuần.</div>
             </div>
           ) : (
             Object.entries(weeksByMonth).sort((a, b) => b[0].localeCompare(a[0])).map(([, weeks]) => {
@@ -293,36 +293,36 @@ export default function Home() {
               }));
               const latestProjects = weeks[weeks.length - 1].projects;
               return (
-                <div key={weeks[0].id} className="bg-white/5 backdrop-blur-lg rounded-2xl shadow-sm border border-white/10 p-8 print:shadow-none print:border-none print:bg-white">
-                  <div className="flex justify-between items-center mb-6 pb-5 border-b border-white/10">
+                <div key={weeks[0].id} className="bg-white shadow-sm border border-slate-200 rounded-2xl shadow-sm border border-slate-200 p-8 print:shadow-none print:border-none print:bg-white">
+                  <div className="flex justify-between items-center mb-6 pb-5 border-b border-slate-200">
                     <div>
-                      <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-1">Báo cáo tháng</div>
-                      <h2 className="text-xl font-medium text-[#F9F9F9]">{getMonthLabel(weeks[0].dateTo)}</h2>
+                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Báo cáo tháng</div>
+                      <h2 className="text-xl font-medium text-slate-900">{getMonthLabel(weeks[0].dateTo)}</h2>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-medium text-[#F9F9F9]">{totalDone}<span className="text-base text-[#999999]">/{totalAll}</span></div>
-                      <div className="text-xs text-[#999999]">tasks hoàn thành</div>
+                      <div className="text-2xl font-medium text-slate-900">{totalDone}<span className="text-base text-slate-500">/{totalAll}</span></div>
+                      <div className="text-xs text-slate-500">tasks hoàn thành</div>
                     </div>
                   </div>
                   <div className="mb-6">
-                    <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-3">Theo tuần</div>
+                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Theo tuần</div>
                     <div className="space-y-1">
                       {weeks.map(w => {
                         const done = w.tasks.filter(t => t.status === "done").length;
                         return (
                           <div key={w.id}
                             onClick={() => loadWeekForEdit(w)}
-                            className="flex items-center gap-4 py-2.5 px-3 -mx-3 rounded-lg border-b border-white/10 last:border-0 hover:bg-[#00F0FF]/10 cursor-pointer transition-colors group/week print:hover:bg-transparent print:cursor-default">
+                            className="flex items-center gap-4 py-2.5 px-3 -mx-3 rounded-lg border-b border-slate-200 last:border-0 hover:bg-[#E85002]/10 cursor-pointer transition-colors group/week print:hover:bg-transparent print:cursor-default">
                             <div className="flex flex-col w-36 flex-shrink-0">
-                              <span className="text-xs font-medium text-[#CCCCCC]">Tuần {getWeekInMonth(w.dateTo)}</span>
-                              <span className="text-xs text-[#999999]">{formatWeekLabel(w.dateFrom, w.dateTo)}</span>
+                              <span className="text-xs font-medium text-slate-800">Tuần {getWeekInMonth(w.dateTo)}</span>
+                              <span className="text-xs text-slate-500">{formatWeekLabel(w.dateFrom, w.dateTo)}</span>
                             </div>
-                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${done === w.tasks.length && w.tasks.length > 0 ? "bg-emerald-100 text-emerald-700" : "bg-white/10 text-[#888888]"}`}>
+                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${done === w.tasks.length && w.tasks.length > 0 ? "bg-emerald-100 text-emerald-700" : "bg-slate-50 text-slate-500"}`}>
                               {done}/{w.tasks.length} tasks
                             </span>
                             <div className="flex gap-1.5 flex-wrap flex-1">
                               {w.channels.map(c => (
-                                <span key={c.id} className={`text-xs px-2 py-0.5 rounded-full ${c.done >= c.total ? "bg-emerald-100 text-emerald-700" : "bg-[#00F0FF]/10 text-[#00F0FF]"}`}>
+                                <span key={c.id} className={`text-xs px-2 py-0.5 rounded-full ${c.done >= c.total ? "bg-emerald-100 text-emerald-700" : "bg-[#E85002]/10 text-[#E85002]"}`}>
                                   {c.name.split(" ")[0]}: {c.done}/{c.total}
                                 </span>
                               ))}
@@ -330,13 +330,13 @@ export default function Home() {
                             <div className="flex items-center gap-2 opacity-0 group-hover/week:opacity-100 transition-opacity print:hidden flex-shrink-0">
                               <button
                                 onClick={e => { e.stopPropagation(); setPreviewWeek(w); }}
-                                className="text-xs text-[#999999] hover:text-[#CCCCCC] border border-[#444444] hover:border-[#666666] px-2 py-0.5 rounded-md"
+                                className="text-xs text-slate-500 hover:text-slate-800 border border-[#444444] hover:border-[#666666] px-2 py-0.5 rounded-md"
                               >Xem</button>
-                              <span className="text-xs text-[#00F0FF]">Sửa →</span>
+                              <span className="text-xs text-[#E85002]">Sửa →</span>
                             </div>
                             <button
                               onClick={e => { e.stopPropagation(); setSavedWeeks(prev => prev.filter(sw => sw.id !== w.id)); }}
-                              className="text-xs text-[#999999] hover:text-red-400 print:hidden flex-shrink-0 ml-1"
+                              className="text-xs text-slate-500 hover:text-red-400 print:hidden flex-shrink-0 ml-1"
                               title="Xóa tuần này"
                             >✕</button>
                           </div>
@@ -346,37 +346,37 @@ export default function Home() {
                   </div>
                   <div className="grid grid-cols-2 gap-6 mb-6">
                     <div>
-                      <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-3">Daily output tổng</div>
+                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Daily output tổng</div>
                       <div className="space-y-2">
                         {Object.entries(channelTotals).map(([cname, stat]) => (
                           <div key={cname} className="flex items-center gap-2">
-                            <span className="text-sm text-[#CCCCCC] w-28 truncate">{cname}</span>
-                            <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                            <span className="text-sm text-slate-800 w-28 truncate">{cname}</span>
+                            <div className="flex-1 h-1.5 bg-slate-50 rounded-full overflow-hidden">
                               <div className="h-full rounded-full" style={{ width: `${Math.min(100, (stat.done / stat.total) * 100)}%`, background: stat.done >= stat.total ? "#1D9E75" : "#E85002" }} />
                             </div>
-                            <span className="text-xs text-[#999999]">{stat.done}/{stat.total}</span>
+                            <span className="text-xs text-slate-500">{stat.done}/{stat.total}</span>
                           </div>
                         ))}
                       </div>
                     </div>
                     <div>
-                      <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-3">Tiến độ dự án</div>
+                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Tiến độ dự án</div>
                       <div className="space-y-2">
                         {latestProjects.map((p, i) => (
                           <div key={i} className="flex items-center gap-2">
-                            <span className="text-sm text-[#CCCCCC] truncate w-28">{p.name}</span>
-                            <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                            <span className="text-sm text-slate-800 truncate w-28">{p.name}</span>
+                            <div className="flex-1 h-1.5 bg-slate-50 rounded-full overflow-hidden">
                               <div className="h-full rounded-full" style={{ width: `${p.pct}%`, background: p.color }} />
                             </div>
-                            <span className="text-xs text-[#999999] w-8 text-right">{p.pct}%</span>
-                            {p.link && <a href={p.link} target="_blank" rel="noreferrer" className="text-xs text-[#00F0FF] print:hidden">↗</a>}
+                            <span className="text-xs text-slate-500 w-8 text-right">{p.pct}%</span>
+                            {p.link && <a href={p.link} target="_blank" rel="noreferrer" className="text-xs text-[#E85002] print:hidden">↗</a>}
                           </div>
                         ))}
                       </div>
                     </div>
                   </div>
-                  <div className="pt-4 border-t border-white/10">
-                    <div className="text-xs text-[#999999]">Monthly Report · Design Team</div>
+                  <div className="pt-4 border-t border-slate-200">
+                    <div className="text-xs text-slate-500">Monthly Report · Design Team</div>
                   </div>
                 </div>
               );
@@ -389,26 +389,26 @@ export default function Home() {
       {previewWeek && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 print:hidden" onClick={() => setPreviewWeek(null)}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-          <div className="relative bg-white/5 backdrop-blur-lg rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+          <div className="relative bg-white shadow-sm border border-slate-200 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             {/* Modal header */}
-            <div className="sticky top-0 bg-white/5 backdrop-blur-lg border-b border-white/10 px-6 py-4 flex justify-between items-center rounded-t-2xl z-10">
+            <div className="sticky top-0 bg-white shadow-sm border border-slate-200 border-b border-slate-200 px-6 py-4 flex justify-between items-center rounded-t-2xl z-10">
               <div>
-                <div className="text-xs font-bold text-[#00F0FF] uppercase tracking-wider tracking-widest">Tuần {getWeekInMonth(previewWeek.dateTo)}</div>
-                <div className="text-sm font-semibold text-[#F9F9F9]">{formatWeekLabel(previewWeek.dateFrom, previewWeek.dateTo)}</div>
+                <div className="text-xs font-bold text-[#E85002] uppercase tracking-wider tracking-widest">Tuần {getWeekInMonth(previewWeek.dateTo)}</div>
+                <div className="text-sm font-semibold text-slate-900">{formatWeekLabel(previewWeek.dateFrom, previewWeek.dateTo)}</div>
               </div>
-              <button onClick={() => setPreviewWeek(null)} className="text-[#999999] hover:text-[#CCCCCC] text-lg leading-none">✕</button>
+              <button onClick={() => setPreviewWeek(null)} className="text-slate-500 hover:text-slate-800 text-lg leading-none">✕</button>
             </div>
 
             <div className="px-6 py-6 space-y-6">
               {/* Metrics */}
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { label: "Hoàn thành", value: `${previewWeek.tasks.filter(t => t.status === "done").length}/${previewWeek.tasks.length}`, color: "text-[#F9F9F9]" },
+                  { label: "Hoàn thành", value: `${previewWeek.tasks.filter(t => t.status === "done").length}/${previewWeek.tasks.length}`, color: "text-slate-900" },
                   { label: "Đang thực hiện", value: previewWeek.tasks.filter(t => t.status === "inprogress").length, color: "text-amber-500" },
-                  { label: "Chưa bắt đầu", value: previewWeek.tasks.filter(t => t.status === "todo").length, color: "text-[#999999]" },
+                  { label: "Chưa bắt đầu", value: previewWeek.tasks.filter(t => t.status === "todo").length, color: "text-slate-500" },
                 ].map(m => (
-                  <div key={m.label} className="bg-white/10 rounded-xl p-3">
-                    <div className="text-xs text-[#999999] mb-1">{m.label}</div>
+                  <div key={m.label} className="bg-slate-50 rounded-xl p-3">
+                    <div className="text-xs text-slate-500 mb-1">{m.label}</div>
                     <div className={`text-2xl font-medium ${m.color}`}>{m.value}</div>
                   </div>
                 ))}
@@ -417,19 +417,19 @@ export default function Home() {
               {/* Projects */}
               {previewWeek.projects.length > 0 && (
                 <div>
-                  <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-3">Tiến độ dự án</div>
+                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Tiến độ dự án</div>
                   <div className="space-y-2.5">
                     {previewWeek.projects.map((p, i) => (
                       <div key={i}>
                         <div className="flex items-center gap-3">
-                          <span className="text-sm text-[#CCCCCC] w-44 truncate flex-shrink-0">{p.name}</span>
-                          <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                          <span className="text-sm text-slate-800 w-44 truncate flex-shrink-0">{p.name}</span>
+                          <div className="flex-1 h-1.5 bg-slate-50 rounded-full overflow-hidden">
                             <div className="h-full rounded-full" style={{ width: `${p.pct}%`, background: p.color }} />
                           </div>
-                          <span className="text-xs text-[#999999] w-8 text-right">{p.pct}%</span>
+                          <span className="text-xs text-slate-500 w-8 text-right">{p.pct}%</span>
                         </div>
                         {p.link && (
-                          <a href={p.link} target="_blank" rel="noreferrer" className="text-xs text-[#00F0FF] hover:underline ml-0 mt-0.5 block truncate">{p.link}</a>
+                          <a href={p.link} target="_blank" rel="noreferrer" className="text-xs text-[#E85002] hover:underline ml-0 mt-0.5 block truncate">{p.link}</a>
                         )}
                       </div>
                     ))}
@@ -440,26 +440,26 @@ export default function Home() {
               {/* Tasks */}
               {previewWeek.tasks.length > 0 && (
                 <div>
-                  <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-3">Công việc trong tuần</div>
+                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Công việc trong tuần</div>
                   <div className="space-y-2">
                     {previewWeek.tasks.map(task => (
-                      <div key={task.id} className={`flex items-start gap-3 rounded-xl px-4 py-3 border ${task.status === "done" ? "border-emerald-100 bg-emerald-50/40" : task.status === "inprogress" ? "border-amber-100 bg-amber-50/40" : "border-white/10"}`}>
+                      <div key={task.id} className={`flex items-start gap-3 rounded-xl px-4 py-3 border ${task.status === "done" ? "border-emerald-100 bg-emerald-50/40" : task.status === "inprogress" ? "border-amber-100 bg-amber-50/40" : "border-slate-200"}`}>
                         <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-1 ${STATUS_COLORS[task.status]}`} />
                         <div className="flex-1 min-w-0">
-                          <div className="text-sm text-[#CCCCCC]">{task.name}</div>
+                          <div className="text-sm text-slate-800">{task.name}</div>
                           {task.note && (
                             (task.note ?? "").startsWith("http") ? (
                               <a href={task.note} target="_blank" rel="noreferrer"
-                                className="text-xs text-[#00F0FF] hover:underline mt-0.5 truncate block">
+                                className="text-xs text-[#E85002] hover:underline mt-0.5 truncate block">
                                 {task.note}
                               </a>
                             ) : (
-                              <div className="text-xs text-[#999999] mt-0.5 truncate">{task.note}</div>
+                              <div className="text-xs text-slate-500 mt-0.5 truncate">{task.note}</div>
                             )
                           )}
                         </div>
                         <span className={`text-xs px-2 py-0.5 rounded font-medium flex-shrink-0 ${TAG_COLORS[task.tag]}`}>{task.tag}</span>
-                        <span className="text-xs text-[#999999] flex-shrink-0">{task.hours}</span>
+                        <span className="text-xs text-slate-500 flex-shrink-0">{task.hours}</span>
                       </div>
                     ))}
                   </div>
@@ -469,18 +469,18 @@ export default function Home() {
               {/* Daily output */}
               {previewWeek.channels.length > 0 && (
                 <div>
-                  <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-3">Daily output – Banner</div>
+                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Daily output – Banner</div>
                   <div className="space-y-2">
                     {previewWeek.channels.map(c => {
                       const pct = c.total > 0 ? Math.min(100, (c.done / c.total) * 100) : 0;
                       const allDone = c.done >= c.total && c.total > 0;
                       return (
                         <div key={c.id} className="flex items-center gap-3">
-                          <span className="text-sm text-[#CCCCCC] w-40 flex-shrink-0">{c.name}</span>
-                          <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                          <span className="text-sm text-slate-800 w-40 flex-shrink-0">{c.name}</span>
+                          <div className="flex-1 h-1.5 bg-slate-50 rounded-full overflow-hidden">
                             <div className="h-full rounded-full" style={{ width: `${pct}%`, background: allDone ? "#1D9E75" : "#E85002" }} />
                           </div>
-                          <span className="text-xs text-[#999999] flex-shrink-0">{c.done}/{c.total} posts</span>
+                          <span className="text-xs text-slate-500 flex-shrink-0">{c.done}/{c.total} posts</span>
                         </div>
                       );
                     })}
@@ -492,15 +492,15 @@ export default function Home() {
               {(previewWeek.nextWeek || previewWeek.blockers) && (
                 <div className="grid grid-cols-2 gap-4">
                   {previewWeek.nextWeek && (
-                    <div className="border border-white/10 rounded-xl p-4">
-                      <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-2">Kế hoạch tuần tới</div>
-                      <p className="text-sm text-[#CCCCCC] whitespace-pre-line leading-relaxed">{previewWeek.nextWeek}</p>
+                    <div className="border border-slate-200 rounded-xl p-4">
+                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Kế hoạch tuần tới</div>
+                      <p className="text-sm text-slate-800 whitespace-pre-line leading-relaxed">{previewWeek.nextWeek}</p>
                     </div>
                   )}
                   {previewWeek.blockers && (
-                    <div className="border border-white/10 rounded-xl p-4">
-                      <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-2">Blockers / cần hỗ trợ</div>
-                      <p className="text-sm text-[#CCCCCC] whitespace-pre-line leading-relaxed">{previewWeek.blockers}</p>
+                    <div className="border border-slate-200 rounded-xl p-4">
+                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Blockers / cần hỗ trợ</div>
+                      <p className="text-sm text-slate-800 whitespace-pre-line leading-relaxed">{previewWeek.blockers}</p>
                     </div>
                   )}
                 </div>
@@ -510,90 +510,90 @@ export default function Home() {
         </div>
       )}
 
-      {view === "weekly" && <div className="max-w-2xl mx-auto bg-white/5 backdrop-blur-lg rounded-2xl shadow-sm border border-white/10 p-8 print:shadow-none print:border-none print:rounded-none print:p-6 print:bg-white">
+      {view === "weekly" && <div className="max-w-2xl mx-auto bg-white shadow-sm border border-slate-200 rounded-2xl shadow-sm border border-slate-200 p-8 print:shadow-none print:border-none print:rounded-none print:p-6 print:bg-white">
 
         {/* Header */}
-        <div className="flex justify-between items-start mb-8 pb-6 border-b border-white/10">
+        <div className="flex justify-between items-start mb-8 pb-6 border-b border-slate-200">
           <div>
-            <h1 className="text-xl font-medium text-[#F9F9F9]">Weekly design report</h1>
+            <h1 className="text-xl font-medium text-slate-900">Weekly design report</h1>
             <div className="flex gap-2 mt-2 flex-wrap items-center">
               <input value={name} onChange={e => setName(e.target.value)}
-                className="text-sm text-[#999999] bg-transparent border-b border-dashed border-[#444444] focus:outline-none focus:border-[#E85002] w-40 print:border-none" />
-              <span className="text-sm text-[#999999]">·</span>
+                className="text-sm text-slate-500 bg-transparent border-b border-dashed border-[#444444] focus:outline-none focus:border-[#E85002] w-40 print:border-none" />
+              <span className="text-sm text-slate-500">·</span>
               <input value={role} onChange={e => setRole(e.target.value)}
-                className="text-sm text-[#999999] bg-transparent border-b border-dashed border-[#444444] focus:outline-none focus:border-[#E85002] w-36 print:border-none" />
+                className="text-sm text-slate-500 bg-transparent border-b border-dashed border-[#444444] focus:outline-none focus:border-[#E85002] w-36 print:border-none" />
             </div>
           </div>
           <div className="flex flex-col items-end gap-1">
-            <div className="text-xs font-medium bg-[#00F0FF]/10 text-[#00F0FF] px-3 py-1.5 rounded-lg print:block hidden">
+            <div className="text-xs font-medium bg-[#E85002]/10 text-[#E85002] px-3 py-1.5 rounded-lg print:block hidden">
               {formatWeekLabel(dateFrom, dateTo)}
             </div>
             <div className="flex items-center gap-1.5 print:hidden">
               <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-                className="text-xs text-[#00F0FF] bg-[#00F0FF]/10 border-none rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#00F0FF]/20 cursor-pointer" />
-              <span className="text-xs text-[#00F0FF]">–</span>
+                className="text-xs text-[#E85002] bg-[#E85002]/10 border-none rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#E85002]/20 cursor-pointer" />
+              <span className="text-xs text-[#E85002]">–</span>
               <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-                className="text-xs text-[#00F0FF] bg-[#00F0FF]/10 border-none rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#00F0FF]/20 cursor-pointer" />
+                className="text-xs text-[#E85002] bg-[#E85002]/10 border-none rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#E85002]/20 cursor-pointer" />
             </div>
           </div>
         </div>
 
         {/* Metrics */}
         <div className="grid grid-cols-3 gap-3 mb-8">
-          <div className="bg-white/10 rounded-xl p-3">
-            <div className="text-xs text-[#999999] mb-1">Tasks hoàn thành</div>
-            <div className="text-2xl font-medium text-[#F9F9F9]">{tasksDone}/{tasks.length}</div>
+          <div className="bg-slate-50 rounded-xl p-3">
+            <div className="text-xs text-slate-500 mb-1">Tasks hoàn thành</div>
+            <div className="text-2xl font-medium text-slate-900">{tasksDone}/{tasks.length}</div>
           </div>
-          <div className="bg-white/10 rounded-xl p-3">
-            <div className="text-xs text-[#999999] mb-1">Đang thực hiện</div>
+          <div className="bg-slate-50 rounded-xl p-3">
+            <div className="text-xs text-slate-500 mb-1">Đang thực hiện</div>
             <div className="text-2xl font-medium text-amber-500">{tasks.filter(t => t.status === "inprogress").length}</div>
           </div>
-          <div className="bg-white/10 rounded-xl p-3">
-            <div className="text-xs text-[#999999] mb-1">Chưa bắt đầu</div>
-            <div className="text-2xl font-medium text-[#999999]">{tasks.filter(t => t.status === "todo").length}</div>
+          <div className="bg-slate-50 rounded-xl p-3">
+            <div className="text-xs text-slate-500 mb-1">Chưa bắt đầu</div>
+            <div className="text-2xl font-medium text-slate-500">{tasks.filter(t => t.status === "todo").length}</div>
           </div>
         </div>
 
         {/* Projects */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-3">
-            <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider">Tiến độ dự án</div>
-            <button onClick={addProject} className="text-xs text-[#00F0FF] hover:text-[#00F0FF] font-medium print:hidden">+ Thêm dự án</button>
+            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tiến độ dự án</div>
+            <button onClick={addProject} className="text-xs text-[#E85002] hover:text-[#E85002] font-medium print:hidden">+ Thêm dự án</button>
           </div>
           <div className="space-y-3">
             {projects.map((p, i) => (
               <div key={i} className="group">
                 <div className="flex items-center gap-3">
                   <input value={p.name} onChange={e => updateProject(i, "name", e.target.value)}
-                    className="text-sm text-[#CCCCCC] bg-transparent focus:outline-none w-44 border-b border-dashed border-[#444444] focus:border-[#E85002] print:border-none flex-shrink-0" />
-                  <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    className="text-sm text-slate-800 bg-transparent focus:outline-none w-44 border-b border-dashed border-[#444444] focus:border-[#E85002] print:border-none flex-shrink-0" />
+                  <div className="flex-1 h-1.5 bg-slate-50 rounded-full overflow-hidden">
                     <div className="h-full rounded-full transition-all" style={{ width: `${p.pct}%`, background: p.color }} />
                   </div>
                   <input type="number" min={0} max={100} value={p.pct}
                     onChange={e => updateProject(i, "pct", Math.min(100, Number(e.target.value)))}
-                    className="text-xs text-[#999999] w-10 text-right bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
-                  <span className="text-xs text-[#999999]">%</span>
+                    className="text-xs text-slate-500 w-10 text-right bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+                  <span className="text-xs text-slate-500">%</span>
                   <button onClick={() => removeProject(i)}
-                    className="text-[#999999] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs print:hidden">✕</button>
+                    className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs print:hidden">✕</button>
                 </div>
                 <div className="flex items-center gap-1.5 mt-1 ml-0">
                   {p.link ? (
                     <>
                       <a href={p.link} target="_blank" rel="noreferrer"
-                        className="text-xs text-[#00F0FF] hover:text-[#00F0FF] truncate max-w-xs print:text-[#999999]">
+                        className="text-xs text-[#E85002] hover:text-[#E85002] truncate max-w-xs print:text-slate-500">
                         {p.link}
                       </a>
                       <input value={p.link} onChange={e => updateProject(i, "link", e.target.value)}
                         className="sr-only" />
                       <button onClick={() => updateProject(i, "link", "")}
-                        className="text-[#999999] hover:text-red-400 text-xs flex-shrink-0 print:hidden">✕</button>
+                        className="text-slate-500 hover:text-red-400 text-xs flex-shrink-0 print:hidden">✕</button>
                     </>
                   ) : (
                     <input
                       value={p.link}
                       onChange={e => updateProject(i, "link", e.target.value)}
                       placeholder="Dán link Figma / Drive..."
-                      className="text-xs text-[#999999] bg-transparent focus:outline-none placeholder-[#555555] w-full print:hidden"
+                      className="text-xs text-slate-500 bg-transparent focus:outline-none placeholder-[#555555] w-full print:hidden"
                     />
                   )}
                 </div>
@@ -605,49 +605,49 @@ export default function Home() {
         {/* Tasks */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-3">
-            <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider">Công việc trong tuần</div>
-            <button onClick={addTask} className="text-xs text-[#00F0FF] hover:text-[#00F0FF] font-medium print:hidden">+ Thêm task</button>
+            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Công việc trong tuần</div>
+            <button onClick={addTask} className="text-xs text-[#E85002] hover:text-[#E85002] font-medium print:hidden">+ Thêm task</button>
           </div>
           <div className="space-y-2">
             {tasks.map(task => (
-              <div key={task.id} className="border border-white/10 rounded-xl px-4 py-3 hover:border-[#444444] transition-colors group">
+              <div key={task.id} className="border border-slate-200 rounded-xl px-4 py-3 hover:border-[#444444] transition-colors group">
                 <div className="flex items-center gap-3">
                   <div className={`w-2 h-2 rounded-full flex-shrink-0 ${STATUS_COLORS[task.status]}`} />
                   <input value={task.name} onChange={e => updateTask(task.id, "name", e.target.value)}
-                    className="flex-1 text-sm text-[#CCCCCC] bg-transparent focus:outline-none min-w-0" />
+                    className="flex-1 text-sm text-slate-800 bg-transparent focus:outline-none min-w-0" />
                   <select value={task.tag} onChange={e => updateTask(task.id, "tag", e.target.value as Tag)}
                     className={`text-xs px-2 py-0.5 rounded font-medium border-none focus:outline-none cursor-pointer ${TAG_COLORS[task.tag]}`}>
                     {TAGS.map(t => <option key={t}>{t}</option>)}
                   </select>
                   <select value={task.status} onChange={e => updateTask(task.id, "status", e.target.value as Status)}
-                    className="text-xs text-[#999999] bg-transparent border-none focus:outline-none cursor-pointer">
+                    className="text-xs text-slate-500 bg-transparent border-none focus:outline-none cursor-pointer">
                     {(["done", "inprogress", "todo"] as Status[]).map(s => (
                       <option key={s} value={s}>{STATUS_LABELS[s]}</option>
                     ))}
                   </select>
                   <input value={task.hours} onChange={e => updateTask(task.id, "hours", e.target.value)}
-                    className="text-xs text-[#999999] w-8 text-right bg-transparent focus:outline-none" />
+                    className="text-xs text-slate-500 w-8 text-right bg-transparent focus:outline-none" />
                   <button onClick={() => removeTask(task.id)}
-                    className="text-[#999999] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs ml-1 print:hidden">✕</button>
+                    className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs ml-1 print:hidden">✕</button>
                 </div>
                 <div className="flex items-center gap-1.5 mt-1.5 ml-5">
                   {(task.note ?? "").startsWith("http") ? (
                     <>
                       <a href={task.note} target="_blank" rel="noreferrer"
-                        className="flex-1 text-xs text-[#00F0FF] hover:text-[#00F0FF] hover:underline truncate print:text-[#999999]">
+                        className="flex-1 text-xs text-[#E85002] hover:text-[#E85002] hover:underline truncate print:text-slate-500">
                         {task.note}
                       </a>
                       <button onClick={() => updateTask(task.id, "note", "")}
-                        className="text-[#999999] hover:text-red-400 text-xs flex-shrink-0 print:hidden">✕</button>
+                        className="text-slate-500 hover:text-red-400 text-xs flex-shrink-0 print:hidden">✕</button>
                     </>
                   ) : (
                     <>
-                      <span className="text-[#999999] text-xs print:hidden">↗</span>
+                      <span className="text-slate-500 text-xs print:hidden">↗</span>
                       <input
                         value={task.note}
                         onChange={e => updateTask(task.id, "note", e.target.value)}
                         placeholder="Link hoặc ghi chú..."
-                        className="flex-1 text-xs text-[#999999] bg-transparent focus:outline-none placeholder-[#555555] print:placeholder-transparent"
+                        className="flex-1 text-xs text-slate-500 bg-transparent focus:outline-none placeholder-[#555555] print:placeholder-transparent"
                       />
                     </>
                   )}
@@ -660,8 +660,8 @@ export default function Home() {
         {/* Daily output */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-3">
-            <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider">Daily output – Banner</div>
-            <button onClick={addChannel} className="text-xs text-[#00F0FF] hover:text-[#00F0FF] font-medium print:hidden">+ Thêm kênh</button>
+            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Daily output – Banner</div>
+            <button onClick={addChannel} className="text-xs text-[#E85002] hover:text-[#E85002] font-medium print:hidden">+ Thêm kênh</button>
           </div>
           <div className="space-y-2.5">
             {channels.map(c => {
@@ -670,23 +670,23 @@ export default function Home() {
               return (
                 <div key={c.id} className="flex items-center gap-3 group">
                   <input value={c.name} onChange={e => updateChannel(c.id, "name", e.target.value)}
-                    className="text-sm text-[#CCCCCC] bg-transparent focus:outline-none w-40 border-b border-dashed border-[#444444] focus:border-[#E85002] print:border-none flex-shrink-0" />
-                  <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    className="text-sm text-slate-800 bg-transparent focus:outline-none w-40 border-b border-dashed border-[#444444] focus:border-[#E85002] print:border-none flex-shrink-0" />
+                  <div className="flex-1 h-1.5 bg-slate-50 rounded-full overflow-hidden">
                     <div className="h-full rounded-full transition-all"
                       style={{ width: `${pct}%`, background: allDone ? "#1D9E75" : "#E85002" }} />
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <input type="number" min={0} max={c.total} value={c.done}
                       onChange={e => updateChannel(c.id, "done", Math.min(c.total, Number(e.target.value)))}
-                      className="text-xs text-[#CCCCCC] font-medium w-6 text-right bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
-                    <span className="text-xs text-[#999999]">/</span>
+                      className="text-xs text-slate-800 font-medium w-6 text-right bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+                    <span className="text-xs text-slate-500">/</span>
                     <input type="number" min={1} value={c.total}
                       onChange={e => updateChannel(c.id, "total", Math.max(1, Number(e.target.value)))}
-                      className="text-xs text-[#999999] w-6 bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
-                    <span className="text-xs text-[#999999] ml-0.5">posts</span>
+                      className="text-xs text-slate-500 w-6 bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+                    <span className="text-xs text-slate-500 ml-0.5">posts</span>
                   </div>
                   <button onClick={() => removeChannel(c.id)}
-                    className="text-[#999999] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs print:hidden">✕</button>
+                    className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs print:hidden">✕</button>
                 </div>
               );
             })}
@@ -695,35 +695,36 @@ export default function Home() {
 
         {/* Next week + Blockers */}
         <div className="grid grid-cols-2 gap-4 mb-8">
-          <div className="border border-white/10 rounded-xl p-4">
-            <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-3">Kế hoạch tuần tới</div>
+          <div className="border border-slate-200 rounded-xl p-4">
+            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Kế hoạch tuần tới</div>
             <textarea value={nextWeek} onChange={e => setNextWeek(e.target.value)}
-              rows={5} className="w-full text-sm text-[#CCCCCC] bg-transparent resize-none focus:outline-none leading-relaxed placeholder-[#555555]"
+              rows={5} className="w-full text-sm text-slate-800 bg-transparent resize-none focus:outline-none leading-relaxed placeholder-[#555555]"
               placeholder="• Thêm kế hoạch..." />
           </div>
-          <div className="border border-white/10 rounded-xl p-4">
-            <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-3">Blockers / cần hỗ trợ</div>
+          <div className="border border-slate-200 rounded-xl p-4">
+            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Blockers / cần hỗ trợ</div>
             <textarea value={blockers} onChange={e => setBlockers(e.target.value)}
-              rows={5} className="w-full text-sm text-[#CCCCCC] bg-transparent resize-none focus:outline-none leading-relaxed placeholder-[#555555]"
+              rows={5} className="w-full text-sm text-slate-800 bg-transparent resize-none focus:outline-none leading-relaxed placeholder-[#555555]"
               placeholder="• Thêm blocker..." />
           </div>
         </div>
 
         {/* Legend + Footer */}
-        <div className="flex justify-between items-center pt-4 border-t border-white/10">
+        <div className="flex justify-between items-center pt-4 border-t border-slate-200">
           <div className="flex gap-4">
             {(["done", "inprogress", "todo"] as Status[]).map(s => (
-              <span key={s} className="flex items-center gap-1.5 text-xs text-[#999999]">
+              <span key={s} className="flex items-center gap-1.5 text-xs text-slate-500">
                 <span className={`w-2 h-2 rounded-full ${STATUS_COLORS[s]}`} />
                 {STATUS_LABELS[s]}
               </span>
             ))}
           </div>
-          <div className="text-xs text-[#999999]">Weekly Report · Design Team</div>
+          <div className="text-xs text-slate-500">Weekly Report · Design Team</div>
         </div>
 
       </div>}
     </main>
   );
 }
+
 
