@@ -10,21 +10,43 @@
 }
 
 :root {
-  --brand: #E85002;
-  --brand-hover: #C10801;
-  --brand-50: #FEF2EC;
-  --brand-100: #FDD8C0;
-  --palette-black: #000000;
-  --palette-white: #F9F9F9;
-  --palette-dark: #333333;
-  --palette-gray: #646464;
-  --palette-light: #A7A7A7;
-  --teal-500: #1D9E75;
+  --brand: #00F0FF; /* Neon Cyan */
+  --brand-hover: #D946EF; /* Neon Fuchsia */
+  --brand-50: rgba(0, 240, 255, 0.1);
+  --brand-100: rgba(0, 240, 255, 0.2);
+  --palette-black: #050505;
+  --palette-white: #FFFFFF;
+  --palette-dark: rgba(16, 23, 42, 0.5); /* Glass surface */
+  --palette-gray: rgba(255, 255, 255, 0.5);
+  --palette-light: rgba(255, 255, 255, 0.8);
+  --teal-500: #39FF14; /* Neon Green */
+  
+  /* Glass variables */
+  --glass-bg: rgba(16, 23, 42, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.1);
 }
 
 * { box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #000000; color: #CCCCCC; }
+body { 
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+  background-color: #0B0E14;
+  color: #E2E8F0; 
+  position: relative;
+  z-index: 0;
+}
 
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  background: radial-gradient(circle at 15% 20%, rgba(0, 240, 255, 0.15) 0%, transparent 40%),
+              radial-gradient(circle at 85% 80%, rgba(217, 70, 239, 0.15) 0%, transparent 40%);
+  pointer-events: none;
+}
 @media print {
   @page { margin: 15mm; size: A4 portrait; }
   body { background: white; }

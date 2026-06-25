@@ -41,7 +41,7 @@ interface Channel {
 }
 
 const TAG_COLORS: Record<Tag, string> = {
-  UI: "bg-[#E85002]/20 text-[#E85002]",
+  UI: "bg-[#00F0FF]/20 text-[#00F0FF]",
   UX: "bg-amber-100 text-amber-800",
   Branding: "bg-emerald-100 text-emerald-800",
   Research: "bg-sky-100 text-sky-800",
@@ -126,24 +126,44 @@ const DEFAULT_PROJECTS: Project[] = [
 ];
 
 export default function Home() {
+  const [isLoaded, setIsLoaded] = useState(false);
   const [view, setView] = useState<View>("weekly");
-  const [savedWeeks, setSavedWeeks] = useState<WeekSnapshot[]>(() => loadSaved()?.savedWeeks ?? []);
+  const [savedWeeks, setSavedWeeks] = useState<WeekSnapshot[]>([]);
   const [previewWeek, setPreviewWeek] = useState<WeekSnapshot | null>(null);
-  const [name, setName] = useState(() => loadSaved()?.name ?? "Nguyễn Minh Anh");
-  const [role, setRole] = useState(() => loadSaved()?.role ?? "UI/UX Designer");
+  const [name, setName] = useState("Nguyễn Minh Anh");
+  const [role, setRole] = useState("UI/UX Designer");
   const defaultDates = getDefaultDates();
-  const [dateFrom, setDateFrom] = useState(() => loadSaved()?.dateFrom ?? defaultDates.from);
-  const [dateTo, setDateTo] = useState(() => loadSaved()?.dateTo ?? defaultDates.to);
-  const [tasks, setTasks] = useState<Task[]>(() => loadSaved()?.tasks ?? DEFAULT_TASKS);
-  const [projects, setProjects] = useState<Project[]>(() => loadSaved()?.projects ?? DEFAULT_PROJECTS);
-  const [channels, setChannels] = useState<Channel[]>(() => loadSaved()?.channels ?? DEFAULT_CHANNELS);
-  const [nextWeek, setNextWeek] = useState(() => loadSaved()?.nextWeek ?? "• Hoàn thiện prototype checkout\n• Họp review với stakeholder\n• Bắt đầu visual design landing page");
-  const [blockers, setBlockers] = useState(() => loadSaved()?.blockers ?? "• Chờ copy từ team content cho landing page\n• Cần xác nhận brand color mới từ marketing");
+  const [dateFrom, setDateFrom] = useState(defaultDates.from);
+  const [dateTo, setDateTo] = useState(defaultDates.to);
+  const [tasks, setTasks] = useState<Task[]>(DEFAULT_TASKS);
+  const [projects, setProjects] = useState<Project[]>(DEFAULT_PROJECTS);
+  const [channels, setChannels] = useState<Channel[]>(DEFAULT_CHANNELS);
+  const [nextWeek, setNextWeek] = useState("• Hoàn thiện prototype checkout\n• Họp review với stakeholder\n• Bắt đầu visual design landing page");
+  const [blockers, setBlockers] = useState("• Chờ copy từ team content cho landing page\n• Cần xác nhận brand color mới từ marketing");
+
   useEffect(() => {
+    const saved = loadSaved();
+    if (saved) {
+      if (saved.savedWeeks) setSavedWeeks(saved.savedWeeks);
+      if (saved.name) setName(saved.name);
+      if (saved.role) setRole(saved.role);
+      if (saved.dateFrom) setDateFrom(saved.dateFrom);
+      if (saved.dateTo) setDateTo(saved.dateTo);
+      if (saved.tasks) setTasks(saved.tasks);
+      if (saved.projects) setProjects(saved.projects);
+      if (saved.channels) setChannels(saved.channels);
+      if (saved.nextWeek) setNextWeek(saved.nextWeek);
+      if (saved.blockers) setBlockers(saved.blockers);
+    }
+    setIsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoaded) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       name, role, dateFrom, dateTo, tasks, projects, channels, nextWeek, blockers, savedWeeks,
     }));
-  }, [name, role, dateFrom, dateTo, tasks, projects, channels, nextWeek, blockers, savedWeeks]);
+  }, [name, role, dateFrom, dateTo, tasks, projects, channels, nextWeek, blockers, savedWeeks, isLoaded]);
 
   const tasksDone = tasks.filter(t => t.status === "done").length;
 
@@ -221,20 +241,20 @@ export default function Home() {
   }, {} as Record<string, WeekSnapshot[]>);
 
   return (
-    <main className="min-h-screen bg-[#000000] py-10 px-4 print:bg-white print:py-0 print:px-0">
+    <main className="min-h-screen bg-transparent py-10 px-4 print:bg-white print:py-0 print:px-0">
 
       {/* Toolbar */}
       <div className="max-w-2xl mx-auto mb-4 flex justify-between items-center print:hidden">
         <div className="flex items-center gap-3">
-          <div className="flex bg-[#1A1A1A] rounded-lg p-0.5 text-sm">
+          <div className="flex bg-white/5 backdrop-blur-md border border-white/10 rounded-lg p-0.5 text-sm">
             <button onClick={() => setView("weekly")}
-              className={`px-3 py-1.5 rounded-md font-medium transition-colors ${view === "weekly" ? "bg-[#2A2A2A] text-[#F9F9F9] shadow-sm" : "text-[#999999] hover:text-[#CCCCCC]"}`}>
+              className={`px-3 py-1.5 rounded-md font-medium transition-colors ${view === "weekly" ? "bg-white/20 text-[#F9F9F9] shadow-sm" : "text-[#999999] hover:text-[#CCCCCC]"}`}>
               Tuần này
             </button>
             <button onClick={() => setView("monthly")}
-              className={`px-3 py-1.5 rounded-md font-medium transition-colors ${view === "monthly" ? "bg-[#2A2A2A] text-[#F9F9F9] shadow-sm" : "text-[#999999] hover:text-[#CCCCCC]"}`}>
+              className={`px-3 py-1.5 rounded-md font-medium transition-colors ${view === "monthly" ? "bg-white/20 text-[#F9F9F9] shadow-sm" : "text-[#999999] hover:text-[#CCCCCC]"}`}>
               Tháng này
-              {savedWeeks.length > 0 && <span className="ml-1 text-xs bg-[#E85002]/20 text-[#E85002] px-1.5 rounded-full">{savedWeeks.length}</span>}
+              {savedWeeks.length > 0 && <span className="ml-1 text-xs bg-[#00F0FF]/20 text-[#00F0FF] px-1.5 rounded-full">{savedWeeks.length}</span>}
             </button>
           </div>
           <button onClick={() => { if (confirm("Reset về dữ liệu mẫu?")) { setName("Nguyễn Minh Anh"); setRole("UI/UX Designer"); const d = getDefaultDates(); setDateFrom(d.from); setDateTo(d.to); setTasks(DEFAULT_TASKS); setProjects(DEFAULT_PROJECTS); setChannels(DEFAULT_CHANNELS); setNextWeek("• Hoàn thiện prototype checkout\n• Họp review với stakeholder\n• Bắt đầu visual design landing page"); setBlockers("• Chờ copy từ team content cho landing page\n• Cần xác nhận brand color mới từ marketing"); } }}
@@ -243,12 +263,12 @@ export default function Home() {
         <div className="flex items-center gap-2">
           {view === "weekly" && (
             <button onClick={() => { if (confirm(`Lưu tuần ${formatWeekLabel(dateFrom, dateTo)} vào báo cáo tháng?`)) saveWeek(); }}
-              className="text-sm border border-[#E85002]/40 text-[#E85002] hover:bg-[#E85002]/10 px-3 py-2 rounded-lg font-medium transition-colors">
+              className="text-sm border border-[#E85002]/40 text-[#00F0FF] hover:bg-[#00F0FF]/10 px-3 py-2 rounded-lg font-medium transition-colors">
               Lưu tuần →
             </button>
           )}
           <button onClick={() => window.print()}
-            className="text-sm bg-[#E85002] hover:bg-[#C10801] text-[#000000] px-4 py-2 rounded-lg font-semibold transition-colors">
+            className="text-sm bg-[#00F0FF] hover:bg-[#C10801] text-[#000000] px-4 py-2 rounded-lg font-semibold transition-colors">
             Export PDF
           </button>
         </div>
@@ -257,7 +277,7 @@ export default function Home() {
       {view === "monthly" && (
         <div className="max-w-2xl mx-auto space-y-4">
           {savedWeeks.length === 0 ? (
-            <div className="bg-[#111111] rounded-2xl border border-[#2A2A2A] p-12 text-center">
+            <div className="bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 p-12 text-center">
               <div className="text-[#999999] text-sm mb-1">Chưa có tuần nào được lưu</div>
               <div className="text-[#999999] text-xs">Bấm &quot;Lưu tuần →&quot; sau khi điền xong báo cáo tuần.</div>
             </div>
@@ -273,8 +293,8 @@ export default function Home() {
               }));
               const latestProjects = weeks[weeks.length - 1].projects;
               return (
-                <div key={weeks[0].id} className="bg-[#111111] rounded-2xl shadow-sm border border-[#2A2A2A] p-8 print:shadow-none print:border-none print:bg-white">
-                  <div className="flex justify-between items-center mb-6 pb-5 border-b border-[#2A2A2A]">
+                <div key={weeks[0].id} className="bg-white/5 backdrop-blur-lg rounded-2xl shadow-sm border border-white/10 p-8 print:shadow-none print:border-none print:bg-white">
+                  <div className="flex justify-between items-center mb-6 pb-5 border-b border-white/10">
                     <div>
                       <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-1">Báo cáo tháng</div>
                       <h2 className="text-xl font-medium text-[#F9F9F9]">{getMonthLabel(weeks[0].dateTo)}</h2>
@@ -292,17 +312,17 @@ export default function Home() {
                         return (
                           <div key={w.id}
                             onClick={() => loadWeekForEdit(w)}
-                            className="flex items-center gap-4 py-2.5 px-3 -mx-3 rounded-lg border-b border-[#222222] last:border-0 hover:bg-[#E85002]/10 cursor-pointer transition-colors group/week print:hover:bg-transparent print:cursor-default">
+                            className="flex items-center gap-4 py-2.5 px-3 -mx-3 rounded-lg border-b border-white/10 last:border-0 hover:bg-[#00F0FF]/10 cursor-pointer transition-colors group/week print:hover:bg-transparent print:cursor-default">
                             <div className="flex flex-col w-36 flex-shrink-0">
                               <span className="text-xs font-medium text-[#CCCCCC]">Tuần {getWeekInMonth(w.dateTo)}</span>
                               <span className="text-xs text-[#999999]">{formatWeekLabel(w.dateFrom, w.dateTo)}</span>
                             </div>
-                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${done === w.tasks.length && w.tasks.length > 0 ? "bg-emerald-100 text-emerald-700" : "bg-[#1A1A1A] text-[#888888]"}`}>
+                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${done === w.tasks.length && w.tasks.length > 0 ? "bg-emerald-100 text-emerald-700" : "bg-white/10 text-[#888888]"}`}>
                               {done}/{w.tasks.length} tasks
                             </span>
                             <div className="flex gap-1.5 flex-wrap flex-1">
                               {w.channels.map(c => (
-                                <span key={c.id} className={`text-xs px-2 py-0.5 rounded-full ${c.done >= c.total ? "bg-emerald-100 text-emerald-700" : "bg-[#E85002]/10 text-[#E85002]"}`}>
+                                <span key={c.id} className={`text-xs px-2 py-0.5 rounded-full ${c.done >= c.total ? "bg-emerald-100 text-emerald-700" : "bg-[#00F0FF]/10 text-[#00F0FF]"}`}>
                                   {c.name.split(" ")[0]}: {c.done}/{c.total}
                                 </span>
                               ))}
@@ -312,7 +332,7 @@ export default function Home() {
                                 onClick={e => { e.stopPropagation(); setPreviewWeek(w); }}
                                 className="text-xs text-[#999999] hover:text-[#CCCCCC] border border-[#444444] hover:border-[#666666] px-2 py-0.5 rounded-md"
                               >Xem</button>
-                              <span className="text-xs text-[#E85002]">Sửa →</span>
+                              <span className="text-xs text-[#00F0FF]">Sửa →</span>
                             </div>
                             <button
                               onClick={e => { e.stopPropagation(); setSavedWeeks(prev => prev.filter(sw => sw.id !== w.id)); }}
@@ -331,7 +351,7 @@ export default function Home() {
                         {Object.entries(channelTotals).map(([cname, stat]) => (
                           <div key={cname} className="flex items-center gap-2">
                             <span className="text-sm text-[#CCCCCC] w-28 truncate">{cname}</span>
-                            <div className="flex-1 h-1.5 bg-[#1A1A1A] rounded-full overflow-hidden">
+                            <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
                               <div className="h-full rounded-full" style={{ width: `${Math.min(100, (stat.done / stat.total) * 100)}%`, background: stat.done >= stat.total ? "#1D9E75" : "#E85002" }} />
                             </div>
                             <span className="text-xs text-[#999999]">{stat.done}/{stat.total}</span>
@@ -345,17 +365,17 @@ export default function Home() {
                         {latestProjects.map((p, i) => (
                           <div key={i} className="flex items-center gap-2">
                             <span className="text-sm text-[#CCCCCC] truncate w-28">{p.name}</span>
-                            <div className="flex-1 h-1.5 bg-[#1A1A1A] rounded-full overflow-hidden">
+                            <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
                               <div className="h-full rounded-full" style={{ width: `${p.pct}%`, background: p.color }} />
                             </div>
                             <span className="text-xs text-[#999999] w-8 text-right">{p.pct}%</span>
-                            {p.link && <a href={p.link} target="_blank" rel="noreferrer" className="text-xs text-[#E85002] print:hidden">↗</a>}
+                            {p.link && <a href={p.link} target="_blank" rel="noreferrer" className="text-xs text-[#00F0FF] print:hidden">↗</a>}
                           </div>
                         ))}
                       </div>
                     </div>
                   </div>
-                  <div className="pt-4 border-t border-[#2A2A2A]">
+                  <div className="pt-4 border-t border-white/10">
                     <div className="text-xs text-[#999999]">Monthly Report · Design Team</div>
                   </div>
                 </div>
@@ -369,11 +389,11 @@ export default function Home() {
       {previewWeek && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 print:hidden" onClick={() => setPreviewWeek(null)}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-          <div className="relative bg-[#111111] rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+          <div className="relative bg-white/5 backdrop-blur-lg rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             {/* Modal header */}
-            <div className="sticky top-0 bg-[#111111] border-b border-[#2A2A2A] px-6 py-4 flex justify-between items-center rounded-t-2xl z-10">
+            <div className="sticky top-0 bg-white/5 backdrop-blur-lg border-b border-white/10 px-6 py-4 flex justify-between items-center rounded-t-2xl z-10">
               <div>
-                <div className="text-xs font-bold text-[#E85002] uppercase tracking-wider tracking-widest">Tuần {getWeekInMonth(previewWeek.dateTo)}</div>
+                <div className="text-xs font-bold text-[#00F0FF] uppercase tracking-wider tracking-widest">Tuần {getWeekInMonth(previewWeek.dateTo)}</div>
                 <div className="text-sm font-semibold text-[#F9F9F9]">{formatWeekLabel(previewWeek.dateFrom, previewWeek.dateTo)}</div>
               </div>
               <button onClick={() => setPreviewWeek(null)} className="text-[#999999] hover:text-[#CCCCCC] text-lg leading-none">✕</button>
@@ -387,7 +407,7 @@ export default function Home() {
                   { label: "Đang thực hiện", value: previewWeek.tasks.filter(t => t.status === "inprogress").length, color: "text-amber-500" },
                   { label: "Chưa bắt đầu", value: previewWeek.tasks.filter(t => t.status === "todo").length, color: "text-[#999999]" },
                 ].map(m => (
-                  <div key={m.label} className="bg-[#1A1A1A] rounded-xl p-3">
+                  <div key={m.label} className="bg-white/10 rounded-xl p-3">
                     <div className="text-xs text-[#999999] mb-1">{m.label}</div>
                     <div className={`text-2xl font-medium ${m.color}`}>{m.value}</div>
                   </div>
@@ -403,13 +423,13 @@ export default function Home() {
                       <div key={i}>
                         <div className="flex items-center gap-3">
                           <span className="text-sm text-[#CCCCCC] w-44 truncate flex-shrink-0">{p.name}</span>
-                          <div className="flex-1 h-1.5 bg-[#1A1A1A] rounded-full overflow-hidden">
+                          <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
                             <div className="h-full rounded-full" style={{ width: `${p.pct}%`, background: p.color }} />
                           </div>
                           <span className="text-xs text-[#999999] w-8 text-right">{p.pct}%</span>
                         </div>
                         {p.link && (
-                          <a href={p.link} target="_blank" rel="noreferrer" className="text-xs text-[#E85002] hover:underline ml-0 mt-0.5 block truncate">{p.link}</a>
+                          <a href={p.link} target="_blank" rel="noreferrer" className="text-xs text-[#00F0FF] hover:underline ml-0 mt-0.5 block truncate">{p.link}</a>
                         )}
                       </div>
                     ))}
@@ -423,14 +443,14 @@ export default function Home() {
                   <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-3">Công việc trong tuần</div>
                   <div className="space-y-2">
                     {previewWeek.tasks.map(task => (
-                      <div key={task.id} className={`flex items-start gap-3 rounded-xl px-4 py-3 border ${task.status === "done" ? "border-emerald-100 bg-emerald-50/40" : task.status === "inprogress" ? "border-amber-100 bg-amber-50/40" : "border-[#2A2A2A]"}`}>
+                      <div key={task.id} className={`flex items-start gap-3 rounded-xl px-4 py-3 border ${task.status === "done" ? "border-emerald-100 bg-emerald-50/40" : task.status === "inprogress" ? "border-amber-100 bg-amber-50/40" : "border-white/10"}`}>
                         <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-1 ${STATUS_COLORS[task.status]}`} />
                         <div className="flex-1 min-w-0">
                           <div className="text-sm text-[#CCCCCC]">{task.name}</div>
                           {task.note && (
                             (task.note ?? "").startsWith("http") ? (
                               <a href={task.note} target="_blank" rel="noreferrer"
-                                className="text-xs text-[#E85002] hover:underline mt-0.5 truncate block">
+                                className="text-xs text-[#00F0FF] hover:underline mt-0.5 truncate block">
                                 {task.note}
                               </a>
                             ) : (
@@ -457,7 +477,7 @@ export default function Home() {
                       return (
                         <div key={c.id} className="flex items-center gap-3">
                           <span className="text-sm text-[#CCCCCC] w-40 flex-shrink-0">{c.name}</span>
-                          <div className="flex-1 h-1.5 bg-[#1A1A1A] rounded-full overflow-hidden">
+                          <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
                             <div className="h-full rounded-full" style={{ width: `${pct}%`, background: allDone ? "#1D9E75" : "#E85002" }} />
                           </div>
                           <span className="text-xs text-[#999999] flex-shrink-0">{c.done}/{c.total} posts</span>
@@ -472,13 +492,13 @@ export default function Home() {
               {(previewWeek.nextWeek || previewWeek.blockers) && (
                 <div className="grid grid-cols-2 gap-4">
                   {previewWeek.nextWeek && (
-                    <div className="border border-[#2A2A2A] rounded-xl p-4">
+                    <div className="border border-white/10 rounded-xl p-4">
                       <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-2">Kế hoạch tuần tới</div>
                       <p className="text-sm text-[#CCCCCC] whitespace-pre-line leading-relaxed">{previewWeek.nextWeek}</p>
                     </div>
                   )}
                   {previewWeek.blockers && (
-                    <div className="border border-[#2A2A2A] rounded-xl p-4">
+                    <div className="border border-white/10 rounded-xl p-4">
                       <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-2">Blockers / cần hỗ trợ</div>
                       <p className="text-sm text-[#CCCCCC] whitespace-pre-line leading-relaxed">{previewWeek.blockers}</p>
                     </div>
@@ -490,10 +510,10 @@ export default function Home() {
         </div>
       )}
 
-      {view === "weekly" && <div className="max-w-2xl mx-auto bg-[#111111] rounded-2xl shadow-sm border border-[#2A2A2A] p-8 print:shadow-none print:border-none print:rounded-none print:p-6 print:bg-white">
+      {view === "weekly" && <div className="max-w-2xl mx-auto bg-white/5 backdrop-blur-lg rounded-2xl shadow-sm border border-white/10 p-8 print:shadow-none print:border-none print:rounded-none print:p-6 print:bg-white">
 
         {/* Header */}
-        <div className="flex justify-between items-start mb-8 pb-6 border-b border-[#2A2A2A]">
+        <div className="flex justify-between items-start mb-8 pb-6 border-b border-white/10">
           <div>
             <h1 className="text-xl font-medium text-[#F9F9F9]">Weekly design report</h1>
             <div className="flex gap-2 mt-2 flex-wrap items-center">
@@ -505,30 +525,30 @@ export default function Home() {
             </div>
           </div>
           <div className="flex flex-col items-end gap-1">
-            <div className="text-xs font-medium bg-[#E85002]/10 text-[#E85002] px-3 py-1.5 rounded-lg print:block hidden">
+            <div className="text-xs font-medium bg-[#00F0FF]/10 text-[#00F0FF] px-3 py-1.5 rounded-lg print:block hidden">
               {formatWeekLabel(dateFrom, dateTo)}
             </div>
             <div className="flex items-center gap-1.5 print:hidden">
               <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-                className="text-xs text-[#E85002] bg-[#E85002]/10 border-none rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#E85002]/20 cursor-pointer" />
-              <span className="text-xs text-[#E85002]">–</span>
+                className="text-xs text-[#00F0FF] bg-[#00F0FF]/10 border-none rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#00F0FF]/20 cursor-pointer" />
+              <span className="text-xs text-[#00F0FF]">–</span>
               <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-                className="text-xs text-[#E85002] bg-[#E85002]/10 border-none rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#E85002]/20 cursor-pointer" />
+                className="text-xs text-[#00F0FF] bg-[#00F0FF]/10 border-none rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#00F0FF]/20 cursor-pointer" />
             </div>
           </div>
         </div>
 
         {/* Metrics */}
         <div className="grid grid-cols-3 gap-3 mb-8">
-          <div className="bg-[#1A1A1A] rounded-xl p-3">
+          <div className="bg-white/10 rounded-xl p-3">
             <div className="text-xs text-[#999999] mb-1">Tasks hoàn thành</div>
             <div className="text-2xl font-medium text-[#F9F9F9]">{tasksDone}/{tasks.length}</div>
           </div>
-          <div className="bg-[#1A1A1A] rounded-xl p-3">
+          <div className="bg-white/10 rounded-xl p-3">
             <div className="text-xs text-[#999999] mb-1">Đang thực hiện</div>
             <div className="text-2xl font-medium text-amber-500">{tasks.filter(t => t.status === "inprogress").length}</div>
           </div>
-          <div className="bg-[#1A1A1A] rounded-xl p-3">
+          <div className="bg-white/10 rounded-xl p-3">
             <div className="text-xs text-[#999999] mb-1">Chưa bắt đầu</div>
             <div className="text-2xl font-medium text-[#999999]">{tasks.filter(t => t.status === "todo").length}</div>
           </div>
@@ -538,7 +558,7 @@ export default function Home() {
         <div className="mb-8">
           <div className="flex justify-between items-center mb-3">
             <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider">Tiến độ dự án</div>
-            <button onClick={addProject} className="text-xs text-[#E85002] hover:text-[#E85002] font-medium print:hidden">+ Thêm dự án</button>
+            <button onClick={addProject} className="text-xs text-[#00F0FF] hover:text-[#00F0FF] font-medium print:hidden">+ Thêm dự án</button>
           </div>
           <div className="space-y-3">
             {projects.map((p, i) => (
@@ -546,7 +566,7 @@ export default function Home() {
                 <div className="flex items-center gap-3">
                   <input value={p.name} onChange={e => updateProject(i, "name", e.target.value)}
                     className="text-sm text-[#CCCCCC] bg-transparent focus:outline-none w-44 border-b border-dashed border-[#444444] focus:border-[#E85002] print:border-none flex-shrink-0" />
-                  <div className="flex-1 h-1.5 bg-[#1A1A1A] rounded-full overflow-hidden">
+                  <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
                     <div className="h-full rounded-full transition-all" style={{ width: `${p.pct}%`, background: p.color }} />
                   </div>
                   <input type="number" min={0} max={100} value={p.pct}
@@ -560,7 +580,7 @@ export default function Home() {
                   {p.link ? (
                     <>
                       <a href={p.link} target="_blank" rel="noreferrer"
-                        className="text-xs text-[#E85002] hover:text-[#E85002] truncate max-w-xs print:text-[#999999]">
+                        className="text-xs text-[#00F0FF] hover:text-[#00F0FF] truncate max-w-xs print:text-[#999999]">
                         {p.link}
                       </a>
                       <input value={p.link} onChange={e => updateProject(i, "link", e.target.value)}
@@ -586,11 +606,11 @@ export default function Home() {
         <div className="mb-8">
           <div className="flex justify-between items-center mb-3">
             <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider">Công việc trong tuần</div>
-            <button onClick={addTask} className="text-xs text-[#E85002] hover:text-[#E85002] font-medium print:hidden">+ Thêm task</button>
+            <button onClick={addTask} className="text-xs text-[#00F0FF] hover:text-[#00F0FF] font-medium print:hidden">+ Thêm task</button>
           </div>
           <div className="space-y-2">
             {tasks.map(task => (
-              <div key={task.id} className="border border-[#2A2A2A] rounded-xl px-4 py-3 hover:border-[#444444] transition-colors group">
+              <div key={task.id} className="border border-white/10 rounded-xl px-4 py-3 hover:border-[#444444] transition-colors group">
                 <div className="flex items-center gap-3">
                   <div className={`w-2 h-2 rounded-full flex-shrink-0 ${STATUS_COLORS[task.status]}`} />
                   <input value={task.name} onChange={e => updateTask(task.id, "name", e.target.value)}
@@ -614,7 +634,7 @@ export default function Home() {
                   {(task.note ?? "").startsWith("http") ? (
                     <>
                       <a href={task.note} target="_blank" rel="noreferrer"
-                        className="flex-1 text-xs text-[#E85002] hover:text-[#E85002] hover:underline truncate print:text-[#999999]">
+                        className="flex-1 text-xs text-[#00F0FF] hover:text-[#00F0FF] hover:underline truncate print:text-[#999999]">
                         {task.note}
                       </a>
                       <button onClick={() => updateTask(task.id, "note", "")}
@@ -641,7 +661,7 @@ export default function Home() {
         <div className="mb-8">
           <div className="flex justify-between items-center mb-3">
             <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider">Daily output – Banner</div>
-            <button onClick={addChannel} className="text-xs text-[#E85002] hover:text-[#E85002] font-medium print:hidden">+ Thêm kênh</button>
+            <button onClick={addChannel} className="text-xs text-[#00F0FF] hover:text-[#00F0FF] font-medium print:hidden">+ Thêm kênh</button>
           </div>
           <div className="space-y-2.5">
             {channels.map(c => {
@@ -651,7 +671,7 @@ export default function Home() {
                 <div key={c.id} className="flex items-center gap-3 group">
                   <input value={c.name} onChange={e => updateChannel(c.id, "name", e.target.value)}
                     className="text-sm text-[#CCCCCC] bg-transparent focus:outline-none w-40 border-b border-dashed border-[#444444] focus:border-[#E85002] print:border-none flex-shrink-0" />
-                  <div className="flex-1 h-1.5 bg-[#1A1A1A] rounded-full overflow-hidden">
+                  <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
                     <div className="h-full rounded-full transition-all"
                       style={{ width: `${pct}%`, background: allDone ? "#1D9E75" : "#E85002" }} />
                   </div>
@@ -675,13 +695,13 @@ export default function Home() {
 
         {/* Next week + Blockers */}
         <div className="grid grid-cols-2 gap-4 mb-8">
-          <div className="border border-[#2A2A2A] rounded-xl p-4">
+          <div className="border border-white/10 rounded-xl p-4">
             <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-3">Kế hoạch tuần tới</div>
             <textarea value={nextWeek} onChange={e => setNextWeek(e.target.value)}
               rows={5} className="w-full text-sm text-[#CCCCCC] bg-transparent resize-none focus:outline-none leading-relaxed placeholder-[#555555]"
               placeholder="• Thêm kế hoạch..." />
           </div>
-          <div className="border border-[#2A2A2A] rounded-xl p-4">
+          <div className="border border-white/10 rounded-xl p-4">
             <div className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-3">Blockers / cần hỗ trợ</div>
             <textarea value={blockers} onChange={e => setBlockers(e.target.value)}
               rows={5} className="w-full text-sm text-[#CCCCCC] bg-transparent resize-none focus:outline-none leading-relaxed placeholder-[#555555]"
@@ -690,7 +710,7 @@ export default function Home() {
         </div>
 
         {/* Legend + Footer */}
-        <div className="flex justify-between items-center pt-4 border-t border-[#2A2A2A]">
+        <div className="flex justify-between items-center pt-4 border-t border-white/10">
           <div className="flex gap-4">
             {(["done", "inprogress", "todo"] as Status[]).map(s => (
               <span key={s} className="flex items-center gap-1.5 text-xs text-[#999999]">
@@ -706,3 +726,4 @@ export default function Home() {
     </main>
   );
 }
+
