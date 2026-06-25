@@ -19,7 +19,7 @@ interface WeekSnapshot {
 
 interface Task {
   id: number;
-  projectId: number | null;
+  projectName: string;
   name: string;
   tag: Tag;
   status: Status;
@@ -108,11 +108,11 @@ function loadSaved() {
 }
 
 const DEFAULT_TASKS: Task[] = [
-  { id: 1, projectId: 1, name: "Thiết kế luồng thanh toán (checkout flow)", tag: "UI", status: "done", hours: "8h", note: "" },
-  { id: 2, projectId: 2, name: "Cập nhật icon set trong design system", tag: "Branding", status: "done", hours: "4h", note: "" },
-  { id: 3, projectId: 1, name: "User testing – màn hình onboarding", tag: "Research", status: "done", hours: "3h", note: "" },
-  { id: 4, projectId: 3, name: "Wireframe landing page Q3 campaign", tag: "UX", status: "inprogress", hours: "5h", note: "" },
-  { id: 5, projectId: 1, name: "Handoff file cho dev – sprint 12", tag: "UI", status: "todo", hours: "—", note: "" },
+  { id: 1, projectName: "App redesign – Checkout", name: "Thiết kế luồng thanh toán (checkout flow)", tag: "UI", status: "done", hours: "8h", note: "" },
+  { id: 2, projectName: "Design system v2", name: "Cập nhật icon set trong design system", tag: "Branding", status: "done", hours: "4h", note: "" },
+  { id: 3, projectName: "App redesign – Checkout", name: "User testing – màn hình onboarding", tag: "Research", status: "done", hours: "3h", note: "" },
+  { id: 4, projectName: "Landing page – Q3", name: "Wireframe landing page Q3 campaign", tag: "UX", status: "inprogress", hours: "5h", note: "" },
+  { id: 5, projectName: "App redesign – Checkout", name: "Handoff file cho dev – sprint 12", tag: "UI", status: "todo", hours: "—", note: "" },
 ];
 
 const DEFAULT_CHANNELS: Channel[] = [
@@ -126,6 +126,7 @@ const DEFAULT_PROJECTS: Project[] = [
   { id: 2, name: "Design system v2", color: "#E85002", link: "" },
   { id: 3, name: "Landing page – Q3", color: "#BA7517", link: "" },
 ];
+
 
 export default function Home() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -147,16 +148,36 @@ export default function Home() {
     const saved = loadSaved();
     if (saved) {
       if (saved.savedWeeks) {
-        setSavedWeeks(saved.savedWeeks.map((w: WeekSnapshot) => ({
-          ...w,
-          projects: w.projects?.map((p: Project) => ({ ...p, id: p.id || Date.now() + Math.random() })) || []
-        })));
+        setSavedWeeks(saved.savedWeeks.map((w: WeekSnapshot) => {
+          const oldProjects = w.projects?.map((p: Project) => ({ ...p, id: p.id || Date.now() + Math.random() })) || [];
+          return {
+            ...w,
+            projects: oldProjects,
+            tasks: w.tasks?.map((t: any) => {
+              let pName = t.projectName || "";
+              if (!pName && t.projectId) {
+                const p = oldProjects.find((x: Project) => x.id === t.projectId);
+                if (p) pName = p.name;
+              }
+              return { ...t, projectName: pName };
+            }) || []
+          };
+        }));
       }
       if (saved.name) setName(saved.name);
       if (saved.role) setRole(saved.role);
       if (saved.dateFrom) setDateFrom(saved.dateFrom);
       if (saved.dateTo) setDateTo(saved.dateTo);
-      if (saved.tasks) setTasks(saved.tasks);
+      if (saved.tasks) {
+        setTasks(saved.tasks.map((t: any) => {
+          let pName = t.projectName || "";
+          if (!pName && t.projectId && saved.projects) {
+            const p = saved.projects.find((x: Project) => x.id === t.projectId);
+            if (p) pName = p.name;
+          }
+          return { ...t, projectName: pName };
+        }));
+      }
       if (saved.projects) setProjects(saved.projects.map((p: Project) => ({ ...p, id: p.id || Date.now() + Math.random() })));
       if (saved.channels) setChannels(saved.channels);
       if (saved.nextWeek) setNextWeek(saved.nextWeek);
@@ -175,7 +196,7 @@ export default function Home() {
   const tasksDone = tasks.filter(t => t.status === "done").length;
 
   const addTask = () =>
-    setTasks(prev => [...prev, { id: Date.now(), projectId: null, name: "Task mới", tag: "UI", status: "todo", hours: "—", note: "" }]);
+    setTasks(prev => [...prev, { id: Date.now(), projectName: "", name: "Task mới", tag: "UI", status: "todo", hours: "—", note: "" }]);
 
   const updateTask = (id: number, field: keyof Task, value: string | number | null) =>
     setTasks(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
@@ -183,16 +204,17 @@ export default function Home() {
   const removeTask = (id: number) =>
     setTasks(prev => prev.filter(t => t.id !== id));
 
-  const addProject = () => {
-    const color = PROJECT_COLORS[projects.length % PROJECT_COLORS.length];
-    setProjects(prev => [...prev, { id: Date.now(), name: "Dự án mới", color, link: "" }]);
+  const updateProject = (name: string, field: keyof Project, value: string | number) => {
+    setProjects(prev => {
+      const idx = prev.findIndex(p => p.name === name);
+      if (idx >= 0) {
+        return prev.map((p, i) => i === idx ? { ...p, [field]: value } : p);
+      } else {
+        const color = PROJECT_COLORS[prev.length % PROJECT_COLORS.length];
+        return [...prev, { id: Date.now(), name, color, link: "", [field]: value }];
+      }
+    });
   };
-
-  const updateProject = (i: number, field: keyof Project, value: string | number) =>
-    setProjects(prev => prev.map((p, idx) => idx === i ? { ...p, [field]: value } : p));
-
-  const removeProject = (i: number) =>
-    setProjects(prev => prev.filter((_, idx) => idx !== i));
 
   const addChannel = () =>
     setChannels(prev => [...prev, { id: Date.now(), name: "Kênh mới", done: 0, total: 5 }]);
@@ -226,16 +248,22 @@ export default function Home() {
       return updated.sort((a, b) => a.dateFrom.localeCompare(b.dateFrom));
     });
     const nextFri = new Date(dateTo + "T00:00:00");
-    nextFri.setDate(nextFri.getDate() + 1);
-    const nextThu = new Date(nextFri);
-    nextThu.setDate(nextFri.getDate() + 6);
-    const toISO = (d: Date) => d.toISOString().slice(0, 10);
-    setDateFrom(toISO(nextFri));
-    setDateTo(toISO(nextThu));
-    setTasks([]);
+    setSavedWeeks(prev => [...prev, newWeek]);
+    
+    // reset for next week: carry over uncompleted tasks
+    setTasks(tasks.filter(t => t.status !== "done"));
     setChannels(prev => prev.map(c => ({ ...c, done: 0 })));
     setNextWeek("");
     setBlockers("");
+    
+    // Shift dates by 7 days
+    const f = new Date(dateFrom + "T00:00:00");
+    f.setDate(f.getDate() + 7);
+    const t = new Date(dateTo + "T00:00:00");
+    t.setDate(t.getDate() + 7);
+    const toISO = (d: Date) => d.toISOString().slice(0, 10);
+    setDateFrom(toISO(f));
+    setDateTo(toISO(t));
     setView("weekly");
   };
 
@@ -370,7 +398,11 @@ export default function Home() {
                       <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Tiến độ dự án</div>
                       <div className="space-y-2">
                         {latestProjects.map((p, i) => {
-                          const allTasks = [...savedWeeks.flatMap(w => w.tasks), ...tasks].filter(t => t.projectId === p.id);
+                          const allTasksRaw = [...savedWeeks.flatMap(w => w.tasks), ...tasks];
+                          const latestTasksMap = new Map<number, Task>();
+                          allTasksRaw.forEach(t => latestTasksMap.set(t.id, t));
+                          const allTasks = Array.from(latestTasksMap.values()).filter(t => t.projectName === p.name);
+                          
                           const doneTasks = allTasks.filter(t => t.status === "done").length;
                           const pct = allTasks.length > 0 ? Math.round((doneTasks / allTasks.length) * 100) : (p.pct !== undefined ? Number(p.pct) : 0);
                           return (
@@ -431,7 +463,11 @@ export default function Home() {
                   <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Tiến độ dự án</div>
                   <div className="space-y-2.5">
                     {previewWeek.projects.map((p, i) => {
-                      const allTasks = [...savedWeeks.flatMap(w => w.tasks), ...tasks].filter(t => t.projectId === p.id);
+                      const allTasksRaw = [...savedWeeks.flatMap(w => w.tasks), ...tasks];
+                      const latestTasksMap = new Map<number, Task>();
+                      allTasksRaw.forEach(t => latestTasksMap.set(t.id, t));
+                      const allTasks = Array.from(latestTasksMap.values()).filter(t => t.projectName === p.name);
+                      
                       const doneTasks = allTasks.filter(t => t.status === "done").length;
                       const pct = allTasks.length > 0 ? Math.round((doneTasks / allTasks.length) * 100) : (p.pct !== undefined ? Number(p.pct) : 0);
                       return (
@@ -573,46 +609,46 @@ export default function Home() {
         <div className="mb-8">
           <div className="flex justify-between items-center mb-3">
             <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tiến độ dự án</div>
-            <button onClick={addProject} className="text-xs text-[#E85002] hover:text-[#E85002] font-medium print:hidden">+ Thêm dự án</button>
           </div>
           <div className="space-y-3">
-            {projects.map((p, i) => {
-              const doneTasks = tasks.filter(t => t.projectId === p.id && t.status === "done").length;
-              const totalTasks = tasks.filter(t => t.projectId === p.id).length;
+            {Array.from(new Set(tasks.map(t => t.projectName).filter(Boolean))).map((pName) => {
+              const p = projects.find(proj => proj.name === pName) || 
+                        savedWeeks.flatMap(w => w.projects || []).find(proj => proj.name === pName) ||
+                        { id: Date.now(), name: pName, color: PROJECT_COLORS[Math.floor(Math.random() * PROJECT_COLORS.length)], link: "" };
+              
+              const doneTasks = tasks.filter(t => t.projectName === pName && t.status === "done").length;
+              const totalTasks = tasks.filter(t => t.projectName === pName).length;
               const isDone = totalTasks > 0 && doneTasks === totalTasks;
               const pct = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : (p.pct !== undefined ? Number(p.pct) : 0);
 
               return (
-              <div key={p.id} className="group relative">
+              <div key={pName} className="group relative">
                 <div className="flex items-center gap-3">
-                  <input value={p.name} onChange={e => updateProject(i, "name", e.target.value)}
-                    className="text-sm text-slate-800 bg-transparent focus:outline-none w-44 border-b border-dashed border-[#444444] focus:border-[#E85002] print:border-none flex-shrink-0" />
-                  <div className="flex-1 h-1.5 bg-slate-50 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: p.color }} />
+                  <span className="text-sm font-medium text-slate-800 w-48 truncate">{pName}</span>
+                  <div className="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: p.color }} />
                   </div>
-                  <div className="flex items-center gap-1 flex-shrink-0">
+                  <div className="flex items-center justify-end w-24">
                     <span className="text-sm font-medium text-slate-800 w-8 text-right">{pct}</span>
                     <span className="text-xs text-slate-500">%</span>
                     {isDone && <span className="ml-2 text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-medium">Hoàn thành</span>}
                   </div>
-                  <button onClick={() => removeProject(i)}
-                    className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs print:hidden">✕</button>
                 </div>
-                <div className="mt-1 ml-[188px] flex items-center gap-2">
+                <div className="mt-1 ml-[204px] flex items-center gap-2">
                   {p.link ? (
                     <>
                       <a href={p.link} target="_blank" rel="noreferrer"
                         className="text-xs text-[#E85002] hover:text-[#E85002] truncate max-w-xs print:text-slate-500">
                         {p.link}
                       </a>
-                      <input value={p.link} onChange={e => updateProject(i, "link", e.target.value)}
+                      <input value={p.link} onChange={e => updateProject(pName, "link", e.target.value)}
                         placeholder="Đổi link..."
                         className="text-xs text-slate-500 bg-transparent border-b border-dashed border-[#444444] focus:outline-none focus:border-[#E85002] w-24 print:hidden" />
-                      <button onClick={() => updateProject(i, "link", "")}
+                      <button onClick={() => updateProject(pName, "link", "")}
                         className="text-slate-500 hover:text-red-400 text-xs flex-shrink-0 print:hidden">✕</button>
                     </>
                   ) : (
-                    <input value={p.link} onChange={e => updateProject(i, "link", e.target.value)}
+                    <input value={p.link || ""} onChange={e => updateProject(pName, "link", e.target.value)}
                       placeholder="Dán link Figma / Drive..."
                       className="text-xs text-slate-500 bg-transparent focus:outline-none placeholder-[#555555] w-full print:hidden" />
                   )}
@@ -635,11 +671,15 @@ export default function Home() {
                   <div className={`w-2 h-2 rounded-full flex-shrink-0 ${STATUS_COLORS[task.status]}`} />
                   <input value={task.name} onChange={e => updateTask(task.id, "name", e.target.value)}
                     className="flex-1 text-sm text-slate-800 bg-transparent focus:outline-none min-w-0" />
-                  <select value={task.projectId || ""} onChange={e => updateTask(task.id, "projectId", e.target.value ? Number(e.target.value) : null)}
-                    className="text-xs text-slate-500 bg-transparent border-none focus:outline-none cursor-pointer max-w-[120px] truncate">
-                    <option value="">-- Dự án --</option>
-                    {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                  </select>
+                  <input value={task.projectName} onChange={e => updateTask(task.id, "projectName", e.target.value)}
+                    list="project-names"
+                    placeholder="-- Tên dự án --"
+                    className="text-xs text-slate-500 bg-transparent border-b border-dashed border-slate-300 focus:outline-none focus:border-[#E85002] max-w-[140px] truncate" />
+                  <datalist id="project-names">
+                    {Array.from(new Set([...projects.map(p => p.name), ...savedWeeks.flatMap(w => w.projects?.map(p => p.name) || [])])).filter(Boolean).map(name => (
+                      <option key={name} value={name} />
+                    ))}
+                  </datalist>
                   <select value={task.tag} onChange={e => updateTask(task.id, "tag", e.target.value as Tag)}
                     className={`text-xs px-2 py-0.5 rounded font-medium border-none focus:outline-none cursor-pointer ${TAG_COLORS[task.tag]}`}>
                     {TAGS.map(t => <option key={t}>{t}</option>)}
