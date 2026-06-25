@@ -424,20 +424,24 @@ export default function Home() {
                 <div>
                   <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Tiến độ dự án</div>
                   <div className="space-y-2.5">
-                    {previewWeek.projects.map((p, i) => (
+                    {previewWeek.projects.map((p, i) => {
+                      const allTasks = [...savedWeeks.flatMap(w => w.tasks), ...tasks].filter(t => t.projectId === p.id);
+                      const doneTasks = allTasks.filter(t => t.status === "done").length;
+                      const pct = allTasks.length > 0 ? Math.round((doneTasks / allTasks.length) * 100) : 0;
+                      return (
                       <div key={i}>
                         <div className="flex items-center gap-3">
                           <span className="text-sm text-slate-800 w-44 truncate flex-shrink-0">{p.name}</span>
                           <div className="flex-1 h-1.5 bg-slate-50 rounded-full overflow-hidden">
-                            <div className="h-full rounded-full" style={{ width: `${p.pct}%`, background: p.color }} />
+                            <div className="h-full rounded-full" style={{ width: `${pct}%`, background: p.color }} />
                           </div>
-                          <span className="text-xs text-slate-500 w-8 text-right">{p.pct}%</span>
+                          <span className="text-xs text-slate-500 w-8 text-right">{pct}%</span>
                         </div>
                         {p.link && (
                           <a href={p.link} target="_blank" rel="noreferrer" className="text-xs text-[#E85002] hover:underline ml-0 mt-0.5 block truncate">{p.link}</a>
                         )}
                       </div>
-                    ))}
+                    )})}
                   </div>
                 </div>
               )}
