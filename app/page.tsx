@@ -147,9 +147,9 @@ export default function Home() {
     const saved = loadSaved();
     if (saved) {
       if (saved.savedWeeks) {
-        setSavedWeeks(saved.savedWeeks.map((w: any) => ({
+        setSavedWeeks(saved.savedWeeks.map((w: WeekSnapshot) => ({
           ...w,
-          projects: w.projects?.map((p: any) => ({ ...p, id: p.id || Date.now() + Math.random() })) || []
+          projects: w.projects?.map((p: Project) => ({ ...p, id: p.id || Date.now() + Math.random() })) || []
         })));
       }
       if (saved.name) setName(saved.name);
@@ -157,7 +157,7 @@ export default function Home() {
       if (saved.dateFrom) setDateFrom(saved.dateFrom);
       if (saved.dateTo) setDateTo(saved.dateTo);
       if (saved.tasks) setTasks(saved.tasks);
-      if (saved.projects) setProjects(saved.projects.map((p: any) => ({ ...p, id: p.id || Date.now() + Math.random() })));
+      if (saved.projects) setProjects(saved.projects.map((p: Project) => ({ ...p, id: p.id || Date.now() + Math.random() })));
       if (saved.channels) setChannels(saved.channels);
       if (saved.nextWeek) setNextWeek(saved.nextWeek);
       if (saved.blockers) setBlockers(saved.blockers);
