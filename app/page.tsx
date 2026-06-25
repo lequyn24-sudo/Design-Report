@@ -171,7 +171,7 @@ export default function Home() {
   const addTask = () =>
     setTasks(prev => [...prev, { id: Date.now(), projectId: null, name: "Task mới", tag: "UI", status: "todo", hours: "—", note: "" }]);
 
-  const updateTask = (id: number, field: keyof Task, value: any) =>
+  const updateTask = (id: number, field: keyof Task, value: string | number | null) =>
     setTasks(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
 
   const removeTask = (id: number) =>
