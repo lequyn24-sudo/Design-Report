@@ -153,7 +153,7 @@ export default function Home() {
           return {
             ...w,
             projects: oldProjects,
-            tasks: w.tasks?.map((t: any) => {
+            tasks: w.tasks?.map((t: Task & { projectId?: number }) => {
               let pName = t.projectName || "";
               if (!pName && t.projectId) {
                 const p = oldProjects.find((x: Project) => x.id === t.projectId);
@@ -169,7 +169,7 @@ export default function Home() {
       if (saved.dateFrom) setDateFrom(saved.dateFrom);
       if (saved.dateTo) setDateTo(saved.dateTo);
       if (saved.tasks) {
-        setTasks(saved.tasks.map((t: any) => {
+        setTasks(saved.tasks.map((t: Task & { projectId?: number }) => {
           let pName = t.projectName || "";
           if (!pName && t.projectId && saved.projects) {
             const p = saved.projects.find((x: Project) => x.id === t.projectId);
