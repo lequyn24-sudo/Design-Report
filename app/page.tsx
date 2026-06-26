@@ -146,19 +146,19 @@ export default function Home() {
   const [isReadOnly, setIsReadOnly] = useState(false);
 
   useEffect(() => {
-    let saved = null;
+    let hashSaved = null;
     if (typeof window !== "undefined" && window.location.hash.startsWith("#data=")) {
       try {
         const base64 = window.location.hash.replace("#data=", "");
-        saved = JSON.parse(decodeURIComponent(escape(window.atob(base64))));
+        hashSaved = JSON.parse(decodeURIComponent(escape(window.atob(base64))));
         setIsReadOnly(true);
         document.body.classList.add("is-readonly");
       } catch (e) {
         console.error("Invalid share link");
       }
     }
-    if (!saved) saved = loadSaved();
-    if (saved) {
+
+    const applyData = (saved: any) => {
       if (saved.savedWeeks) {
         setSavedWeeks(saved.savedWeeks.map((w: WeekSnapshot) => {
           const oldProjects = w.projects?.map((p: Project) => ({ ...p, id: p.id || Date.now() + Math.random() })) || [];
@@ -194,15 +194,45 @@ export default function Home() {
       if (saved.channels) setChannels(saved.channels);
       if (saved.nextWeek) setNextWeek(saved.nextWeek);
       if (saved.blockers) setBlockers(saved.blockers);
+      setIsLoaded(true);
+    };
+
+    if (hashSaved) {
+      applyData(hashSaved);
+    } else {
+      fetch('/api/report')
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.tasks) {
+            applyData(data);
+          } else {
+            const local = loadSaved();
+            if (local) applyData(local);
+            else setIsLoaded(true);
+          }
+        })
+        .catch(err => {
+          console.error("Lỗi tải từ mây", err);
+          const local = loadSaved();
+          if (local) applyData(local);
+          else setIsLoaded(true);
+        });
     }
-    setIsLoaded(true);
   }, []);
 
   useEffect(() => {
     if (!isLoaded || isReadOnly) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      name, role, dateFrom, dateTo, tasks, projects, channels, nextWeek, blockers, savedWeeks,
-    }));
+    const data = { name, role, dateFrom, dateTo, tasks, projects, channels, nextWeek, blockers, savedWeeks };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    
+    const timer = setTimeout(() => {
+      fetch('/api/report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).catch(err => console.error("Lỗi đồng bộ mây", err));
+    }, 2000);
+    return () => clearTimeout(timer);
   }, [name, role, dateFrom, dateTo, tasks, projects, channels, nextWeek, blockers, savedWeeks, isLoaded, isReadOnly]);
 
   const handleShare = () => {
