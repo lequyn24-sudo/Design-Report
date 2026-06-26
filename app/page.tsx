@@ -153,11 +153,12 @@ export default function Home() {
         hashSaved = JSON.parse(decodeURIComponent(escape(window.atob(base64))));
         setIsReadOnly(true);
         document.body.classList.add("is-readonly");
-      } catch (e) {
+      } catch {
         console.error("Invalid share link");
       }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const applyData = (saved: any) => {
       if (saved.savedWeeks) {
         setSavedWeeks(saved.savedWeeks.map((w: WeekSnapshot) => {
