@@ -143,9 +143,21 @@ export default function Home() {
   const [channels, setChannels] = useState<Channel[]>(DEFAULT_CHANNELS);
   const [nextWeek, setNextWeek] = useState("• Hoàn thiện prototype checkout\n• Họp review với stakeholder\n• Bắt đầu visual design landing page");
   const [blockers, setBlockers] = useState("• Chờ copy từ team content cho landing page\n• Cần xác nhận brand color mới từ marketing");
+  const [isReadOnly, setIsReadOnly] = useState(false);
 
   useEffect(() => {
-    const saved = loadSaved();
+    let saved = null;
+    if (typeof window !== "undefined" && window.location.hash.startsWith("#data=")) {
+      try {
+        const base64 = window.location.hash.replace("#data=", "");
+        saved = JSON.parse(decodeURIComponent(escape(window.atob(base64))));
+        setIsReadOnly(true);
+        document.body.classList.add("is-readonly");
+      } catch (e) {
+        console.error("Invalid share link");
+      }
+    }
+    if (!saved) saved = loadSaved();
     if (saved) {
       if (saved.savedWeeks) {
         setSavedWeeks(saved.savedWeeks.map((w: WeekSnapshot) => {
@@ -187,11 +199,21 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!isLoaded || isReadOnly) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       name, role, dateFrom, dateTo, tasks, projects, channels, nextWeek, blockers, savedWeeks,
     }));
-  }, [name, role, dateFrom, dateTo, tasks, projects, channels, nextWeek, blockers, savedWeeks, isLoaded]);
+  }, [name, role, dateFrom, dateTo, tasks, projects, channels, nextWeek, blockers, savedWeeks, isLoaded, isReadOnly]);
+
+  const handleShare = () => {
+    const data = JSON.stringify({
+      name, role, dateFrom, dateTo, tasks, projects, channels, nextWeek, blockers, savedWeeks,
+    });
+    const base64 = window.btoa(unescape(encodeURIComponent(data)));
+    const url = window.location.origin + window.location.pathname + "#data=" + base64;
+    navigator.clipboard.writeText(url);
+    alert("Đã copy link chia sẻ vào Clipboard!\nBạn có thể gửi link này cho sếp để xem báo cáo nhé.");
+  };
 
   const tasksDone = tasks.filter(t => t.status === "done").length;
 
@@ -290,15 +312,19 @@ export default function Home() {
             </button>
           </div>
           <button onClick={() => { if (confirm("Reset về dữ liệu mẫu?")) { setName("Nguyễn Minh Anh"); setRole("UI/UX Designer"); const d = getDefaultDates(); setDateFrom(d.from); setDateTo(d.to); setTasks(DEFAULT_TASKS); setProjects(DEFAULT_PROJECTS); setChannels(DEFAULT_CHANNELS); setNextWeek("• Hoàn thiện prototype checkout\n• Họp review với stakeholder\n• Bắt đầu visual design landing page"); setBlockers("• Chờ copy từ team content cho landing page\n• Cần xác nhận brand color mới từ marketing"); } }}
-            className="text-xs text-slate-500 hover:text-slate-500">Reset</button>
+            className="hide-on-readonly text-xs text-slate-500 hover:text-slate-500">Reset</button>
         </div>
         <div className="flex items-center gap-2">
           {view === "weekly" && (
             <button onClick={() => { if (confirm(`Lưu tuần ${formatWeekLabel(dateFrom, dateTo)} vào báo cáo tháng?`)) saveWeek(); }}
-              className="text-sm border border-[#E85002]/40 text-[#E85002] hover:bg-[#E85002]/10 px-3 py-2 rounded-lg font-medium transition-colors">
+              className="hide-on-readonly text-sm border border-[#E85002]/40 text-[#E85002] hover:bg-[#E85002]/10 px-3 py-2 rounded-lg font-medium transition-colors">
               Lưu tuần →
             </button>
           )}
+          <button onClick={handleShare}
+            className="text-sm border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 px-3 py-2 rounded-lg font-medium transition-colors print:hidden flex items-center gap-1.5 shadow-sm">
+            🔗 Chia sẻ link
+          </button>
           <button onClick={() => window.print()}
             className="text-sm bg-[#E85002] hover:bg-[#C10801] text-white px-4 py-2 rounded-lg font-semibold transition-colors">
             Export PDF
@@ -642,7 +668,7 @@ export default function Home() {
                         placeholder="Đổi link..."
                         className="text-xs text-slate-500 bg-transparent border-b border-dashed border-[#444444] focus:outline-none focus:border-[#E85002] w-24 print:hidden" />
                       <button onClick={() => updateProject(pName, "link", "")}
-                        className="text-slate-500 hover:text-red-400 text-xs flex-shrink-0 print:hidden">✕</button>
+                        className="hide-on-readonly text-slate-500 hover:text-red-400 text-xs flex-shrink-0 print:hidden">✕</button>
                     </>
                   ) : (
                     <input value={p.link || ""} onChange={e => updateProject(pName, "link", e.target.value)}
@@ -659,7 +685,7 @@ export default function Home() {
         <div className="mb-8">
           <div className="flex justify-between items-center mb-3">
             <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Công việc trong tuần</div>
-            <button onClick={addTask} className="text-xs text-[#E85002] hover:text-[#E85002] font-medium print:hidden">+ Thêm task</button>
+            <button onClick={addTask} className="hide-on-readonly text-xs text-[#E85002] hover:text-[#E85002] font-medium print:hidden">+ Thêm task</button>
           </div>
           <div className="space-y-2">
             {tasks.map(task => (
@@ -690,7 +716,7 @@ export default function Home() {
                   <input value={task.hours} onChange={e => updateTask(task.id, "hours", e.target.value)}
                     className="text-xs text-slate-500 w-8 text-right bg-transparent focus:outline-none" />
                   <button onClick={() => removeTask(task.id)}
-                    className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs ml-1 print:hidden">✕</button>
+                    className="hide-on-readonly text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs ml-1 print:hidden">✕</button>
                 </div>
                 <div className="flex items-center gap-1.5 mt-1.5 ml-5">
                   {(task.note ?? "").startsWith("http") ? (
@@ -700,7 +726,7 @@ export default function Home() {
                         {task.note}
                       </a>
                       <button onClick={() => updateTask(task.id, "note", "")}
-                        className="text-slate-500 hover:text-red-400 text-xs flex-shrink-0 print:hidden">✕</button>
+                        className="hide-on-readonly text-slate-500 hover:text-red-400 text-xs flex-shrink-0 print:hidden">✕</button>
                     </>
                   ) : (
                     <>
