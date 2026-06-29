@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server';
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL ?? 'https://utkvqhatkzdydusergdr.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY ?? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0a3ZxaGF0a3pkeWR1c2VyZ2RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3NDMyMzAsImV4cCI6MjA5ODMxOTIzMH0.YIkGEEwL4Ug138jSGj6UlvGnb4WikpprUbhvALmaQXY';
 
 export async function POST(request: Request) {
-  if (!SUPABASE_URL || !SUPABASE_KEY) {
-    return NextResponse.json({ error: 'Not configured' }, { status: 503 });
-  }
 
   try {
     const data = await request.json();
