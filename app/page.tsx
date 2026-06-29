@@ -279,31 +279,27 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, [name, role, dateFrom, dateTo, tasks, projects, channels, nextWeek, blockers, savedWeeks, isLoaded, isReadOnly]);
 
-  const handleShare = async () => {
-    if (savedWeeks.length === 0) {
-      alert("Chưa có tuần nào được lưu.\nHãy nhập báo cáo tuần và bấm \"Lưu tuần →\" trước nhé.");
-      return;
-    }
+  const handleShareMonth = async (monthWeeks: WeekSnapshot[], monthLabel: string) => {
     try {
       const res = await fetch('/api/share', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, role, savedWeeks }),
+        body: JSON.stringify({ name, role, savedWeeks: monthWeeks }),
       });
       if (res.ok) {
         const { id } = await res.json();
         const url = window.location.origin + window.location.pathname + "?share=" + id;
         await navigator.clipboard.writeText(url);
-        alert("Đã copy link!\nSếp mở link sẽ chỉ thấy báo cáo tháng — nhấp vào từng tuần để xem chi tiết.");
+        alert(`Đã copy link báo cáo ${monthLabel}!\nSếp mở link sẽ chỉ thấy tháng này thôi — nhấp vào từng tuần để xem chi tiết.`);
         return;
       }
     } catch { /* fallback below */ }
     // fallback: base64 in URL
-    const data = JSON.stringify({ name, role, savedWeeks });
+    const data = JSON.stringify({ name, role, savedWeeks: monthWeeks });
     const base64 = window.btoa(unescape(encodeURIComponent(data)));
     const url = window.location.origin + window.location.pathname + "#monthly=" + base64;
     await navigator.clipboard.writeText(url);
-    alert("Đã copy link!");
+    alert(`Đã copy link báo cáo ${monthLabel}!`);
   };
 
   const tasksDone = tasks.filter(t => t.status === "done").length;
@@ -420,12 +416,6 @@ export default function Home() {
               Lưu tuần →
             </button>
           )}
-          {!isMonthlyOnly && (
-            <button onClick={handleShare}
-              className="text-sm border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 px-3 py-2 rounded-lg font-medium transition-colors print:hidden flex items-center gap-1.5 shadow-sm">
-              Chia sẻ báo cáo tháng
-            </button>
-          )}
           <button onClick={() => window.print()}
             className="text-sm bg-[#E85002] hover:bg-[#C10801] text-white px-4 py-2 rounded-lg font-semibold transition-colors">
             Export PDF
@@ -458,9 +448,19 @@ export default function Home() {
                       <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Báo cáo tháng</div>
                       <h2 className="text-xl font-medium text-slate-900">{getMonthLabel(weeks[0].dateTo)}</h2>
                     </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-medium text-slate-900">{totalDone}<span className="text-base text-slate-500">/{totalAll}</span></div>
-                      <div className="text-xs text-slate-500">tasks hoàn thành</div>
+                    <div className="flex items-center gap-4">
+                      {!isMonthlyOnly && (
+                        <button
+                          onClick={() => handleShareMonth(weeks, getMonthLabel(weeks[0].dateTo))}
+                          className="text-xs border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 px-3 py-1.5 rounded-lg font-medium transition-colors print:hidden flex items-center gap-1.5 shadow-sm"
+                        >
+                          Chia sẻ tháng này
+                        </button>
+                      )}
+                      <div className="text-right">
+                        <div className="text-2xl font-medium text-slate-900">{totalDone}<span className="text-base text-slate-500">/{totalAll}</span></div>
+                        <div className="text-xs text-slate-500">tasks hoàn thành</div>
+                      </div>
                     </div>
                   </div>
                   <div className="mb-6">
