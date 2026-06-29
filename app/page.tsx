@@ -149,22 +149,11 @@ export default function Home() {
   useEffect(() => {
     let hashSaved = null;
 
-    if (typeof window !== "undefined" && window.location.hash.startsWith("#monthly=")) {
-      try {
-        const base64 = window.location.hash.replace("#monthly=", "");
-        const parsed = JSON.parse(decodeURIComponent(escape(window.atob(base64))));
-        setIsMonthlyOnly(true);
-        setIsReadOnly(true);
-        document.body.classList.add("is-readonly");
-        if (parsed.savedWeeks) setSavedWeeks(parsed.savedWeeks);
-        if (parsed.name) setName(parsed.name);
-        if (parsed.role) setRole(parsed.role);
-        setView("monthly");
-        setIsLoaded(true);
-        return;
-      } catch {
-        console.error("Invalid monthly share link");
-      }
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("readonly") === "monthly") {
+      setIsMonthlyOnly(true);
+      setIsReadOnly(true);
+      document.body.classList.add("is-readonly");
+      setView("monthly");
     }
 
     if (typeof window !== "undefined" && window.location.hash.startsWith("#data=")) {
@@ -261,11 +250,9 @@ export default function Home() {
       alert("Chưa có tuần nào được lưu.\nHãy nhập báo cáo tuần và bấm \"Lưu tuần →\" trước nhé.");
       return;
     }
-    const data = JSON.stringify({ name, role, savedWeeks });
-    const base64 = window.btoa(unescape(encodeURIComponent(data)));
-    const url = window.location.origin + window.location.pathname + "#monthly=" + base64;
+    const url = window.location.origin + window.location.pathname + "?readonly=monthly";
     navigator.clipboard.writeText(url);
-    alert("Đã copy link!\nSếp mở link sẽ chỉ thấy tổng báo cáo tháng — không nhập hay sửa được gì đâu.");
+    alert("Đã copy link!\nSếp mở link sẽ chỉ thấy báo cáo tháng — nhấp vào từng tuần để xem chi tiết, không sửa được gì đâu.");
   };
 
   const tasksDone = tasks.filter(t => t.status === "done").length;
@@ -432,8 +419,8 @@ export default function Home() {
                         const done = w.tasks.filter(t => t.status === "done").length;
                         return (
                           <div key={w.id}
-                            onClick={() => !isMonthlyOnly && loadWeekForEdit(w)}
-                            className={`flex items-center gap-4 py-2.5 px-3 -mx-3 rounded-lg border-b border-slate-200 last:border-0 transition-colors group/week print:hover:bg-transparent print:cursor-default ${isMonthlyOnly ? "cursor-default" : "hover:bg-[#E85002]/10 cursor-pointer"}`}>
+                            onClick={() => isMonthlyOnly ? setPreviewWeek(w) : loadWeekForEdit(w)}
+                            className="flex items-center gap-4 py-2.5 px-3 -mx-3 rounded-lg border-b border-slate-200 last:border-0 hover:bg-[#E85002]/10 cursor-pointer transition-colors group/week print:hover:bg-transparent print:cursor-default">
                             <div className="flex flex-col w-36 flex-shrink-0">
                               <span className="text-xs font-medium text-slate-800">Tuần {getWeekInMonth(w.dateTo)}</span>
                               <span className="text-xs text-slate-500">{formatWeekLabel(w.dateFrom, w.dateTo)}</span>
@@ -448,13 +435,17 @@ export default function Home() {
                                 </span>
                               ))}
                             </div>
-                            <div className={`flex items-center gap-2 transition-opacity print:hidden flex-shrink-0 ${isMonthlyOnly ? "opacity-0 pointer-events-none" : "opacity-0 group-hover/week:opacity-100"}`}>
-                              <button
-                                onClick={e => { e.stopPropagation(); setPreviewWeek(w); }}
-                                className="text-xs text-slate-500 hover:text-slate-800 border border-[#444444] hover:border-[#666666] px-2 py-0.5 rounded-md"
-                              >Xem</button>
-                              <span className="text-xs text-[#E85002]">Sửa →</span>
-                            </div>
+                            {isMonthlyOnly ? (
+                              <span className="text-xs text-slate-400 flex-shrink-0 print:hidden">Xem chi tiết →</span>
+                            ) : (
+                              <div className="flex items-center gap-2 opacity-0 group-hover/week:opacity-100 transition-opacity print:hidden flex-shrink-0">
+                                <button
+                                  onClick={e => { e.stopPropagation(); setPreviewWeek(w); }}
+                                  className="text-xs text-slate-500 hover:text-slate-800 border border-[#444444] hover:border-[#666666] px-2 py-0.5 rounded-md"
+                                >Xem</button>
+                                <span className="text-xs text-[#E85002]">Sửa →</span>
+                              </div>
+                            )}
                             {!isMonthlyOnly && (
                               <button
                                 onClick={e => { e.stopPropagation(); setSavedWeeks(prev => prev.filter(sw => sw.id !== w.id)); }}
