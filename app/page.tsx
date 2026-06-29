@@ -149,6 +149,29 @@ export default function Home() {
   useEffect(() => {
     let hashSaved = null;
 
+    const shareId = typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("share")
+      : null;
+
+    if (shareId) {
+      fetch(`/api/share/${shareId}`)
+        .then(res => res.ok ? res.json() : null)
+        .then(parsed => {
+          if (parsed) {
+            setIsMonthlyOnly(true);
+            setIsReadOnly(true);
+            document.body.classList.add("is-readonly");
+            if (parsed.savedWeeks) setSavedWeeks(parsed.savedWeeks);
+            if (parsed.name) setName(parsed.name);
+            if (parsed.role) setRole(parsed.role);
+            setView("monthly");
+          }
+          setIsLoaded(true);
+        })
+        .catch(() => setIsLoaded(true));
+      return;
+    }
+
     if (typeof window !== "undefined" && window.location.hash.startsWith("#monthly=")) {
       try {
         const base64 = window.location.hash.replace("#monthly=", "");
@@ -256,16 +279,31 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, [name, role, dateFrom, dateTo, tasks, projects, channels, nextWeek, blockers, savedWeeks, isLoaded, isReadOnly]);
 
-  const handleShare = () => {
+  const handleShare = async () => {
     if (savedWeeks.length === 0) {
       alert("Chưa có tuần nào được lưu.\nHãy nhập báo cáo tuần và bấm \"Lưu tuần →\" trước nhé.");
       return;
     }
+    try {
+      const res = await fetch('/api/share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, role, savedWeeks }),
+      });
+      if (res.ok) {
+        const { id } = await res.json();
+        const url = window.location.origin + window.location.pathname + "?share=" + id;
+        await navigator.clipboard.writeText(url);
+        alert("Đã copy link!\nSếp mở link sẽ chỉ thấy báo cáo tháng — nhấp vào từng tuần để xem chi tiết.");
+        return;
+      }
+    } catch { /* fallback below */ }
+    // fallback: base64 in URL
     const data = JSON.stringify({ name, role, savedWeeks });
     const base64 = window.btoa(unescape(encodeURIComponent(data)));
     const url = window.location.origin + window.location.pathname + "#monthly=" + base64;
-    navigator.clipboard.writeText(url);
-    alert("Đã copy link!\nSếp mở link sẽ chỉ thấy báo cáo tháng — nhấp vào từng tuần để xem chi tiết, không sửa được gì đâu.");
+    await navigator.clipboard.writeText(url);
+    alert("Đã copy link!");
   };
 
   const tasksDone = tasks.filter(t => t.status === "done").length;
