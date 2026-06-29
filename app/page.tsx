@@ -149,11 +149,22 @@ export default function Home() {
   useEffect(() => {
     let hashSaved = null;
 
-    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("readonly") === "monthly") {
-      setIsMonthlyOnly(true);
-      setIsReadOnly(true);
-      document.body.classList.add("is-readonly");
-      setView("monthly");
+    if (typeof window !== "undefined" && window.location.hash.startsWith("#monthly=")) {
+      try {
+        const base64 = window.location.hash.replace("#monthly=", "");
+        const parsed = JSON.parse(decodeURIComponent(escape(window.atob(base64))));
+        setIsMonthlyOnly(true);
+        setIsReadOnly(true);
+        document.body.classList.add("is-readonly");
+        if (parsed.savedWeeks) setSavedWeeks(parsed.savedWeeks);
+        if (parsed.name) setName(parsed.name);
+        if (parsed.role) setRole(parsed.role);
+        setView("monthly");
+        setIsLoaded(true);
+        return;
+      } catch {
+        console.error("Invalid monthly share link");
+      }
     }
 
     if (typeof window !== "undefined" && window.location.hash.startsWith("#data=")) {
@@ -250,7 +261,9 @@ export default function Home() {
       alert("Chưa có tuần nào được lưu.\nHãy nhập báo cáo tuần và bấm \"Lưu tuần →\" trước nhé.");
       return;
     }
-    const url = window.location.origin + window.location.pathname + "?readonly=monthly";
+    const data = JSON.stringify({ name, role, savedWeeks });
+    const base64 = window.btoa(unescape(encodeURIComponent(data)));
+    const url = window.location.origin + window.location.pathname + "#monthly=" + base64;
     navigator.clipboard.writeText(url);
     alert("Đã copy link!\nSếp mở link sẽ chỉ thấy báo cáo tháng — nhấp vào từng tuần để xem chi tiết, không sửa được gì đâu.");
   };
